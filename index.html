@@ -51,6 +51,17 @@
   .rec-dot.on{display:flex}
   .rec-dot i{width:9px;height:9px;border-radius:50%;background:#ff2e55;animation:blink 1s infinite}
   @keyframes blink{50%{opacity:.2}}
+  .tap-layer{position:absolute;inset:0;z-index:15;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(5,5,15,.5);cursor:pointer;padding:20px;text-align:center;-webkit-tap-highlight-color:transparent}
+  .tap-layer.show{display:flex}
+  .tl-badge{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;letter-spacing:1px;color:#fff;background:rgba(255,46,136,.85);padding:5px 12px;border-radius:20px}
+  .tl-label{font-size:11px;letter-spacing:3px;color:var(--accent2);font-weight:700}
+  .tl-next{font-size:clamp(20px,5vw,38px);font-weight:900;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,.6);line-height:1.3;font-family:'Zen Kaku Gothic New',sans-serif}
+  .tl-count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .tl-tap{margin-top:6px;font-size:12px;color:#fff;opacity:.75;animation:tlpulse 1.1s infinite}
+  @keyframes tlpulse{50%{opacity:.35}}
+  .tap-fab{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;z-index:60;padding:16px 32px;border-radius:40px;font-weight:900;font-size:15px;font-family:inherit;background:linear-gradient(135deg,#ff2e88,#7a2eff);color:#fff;border:none;box-shadow:0 10px 30px rgba(255,46,136,.5);display:none;cursor:pointer;letter-spacing:.5px}
+  .tap-fab.show{display:block}
+  .tap-fab:active{transform:translateX(-50%) scale(.96)}
   .transport{display:flex;align-items:center;gap:12px;width:100%;max-width:720px;margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
   .play-btn{width:46px;height:46px;border-radius:50%;flex:none;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
   .seek{flex:1;display:flex;flex-direction:column;gap:4px}
@@ -141,6 +152,13 @@
       <div class="canvas-frame">
         <canvas id="stage" width="1280" height="720"></canvas>
         <div class="rec-dot" id="recDot"><i></i>REC <span id="recTime">0:00</span></div>
+        <div class="tap-layer" id="tapLayer">
+          <div class="tl-badge">TAP</div>
+          <div class="tl-label">NEXT LYRIC</div>
+          <div class="tl-next" id="tlNext"></div>
+          <div class="tl-count" id="tlCount"></div>
+          <div class="tl-tap">▶ 歌詞の瞬間に画面をタップ</div>
+        </div>
       </div>
     </div>
     <div class="transport">
@@ -224,6 +242,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<button class="tap-fab" id="tapFab">⬇ この瞬間をマーク</button>
 
 <audio id="audio" crossorigin="anonymous"></audio>
 <video id="bgVideo" crossorigin="anonymous" muted loop playsinline style="display:none"></video>
@@ -330,6 +349,14 @@ function renderLyricList(){
 // ---------- tap ----------
 function updateTapBtn(){
   const btn=$('tapBtn'),hint=$('tapHint');
+  const active = S.lyrics.length>0 && !audio.paused && S.tapIndex<S.lyrics.length;
+  $('tapLayer').classList.toggle('show',active);
+  $('tapFab').classList.toggle('show',active);
+  if(active){
+    $('tlNext').textContent=S.lyrics[S.tapIndex].text;
+    $('tlCount').textContent=(S.tapIndex+1)+' / '+S.lyrics.length;
+    $('tapFab').textContent='⬇ マーク ('+(S.tapIndex+1)+'/'+S.lyrics.length+')';
+  }
   if(!S.lyrics.length){btn.disabled=true;btn.textContent='▶ 歌詞を読み込む';hint.textContent='歌詞を読み込むと記録できます';return;}
   if(audio.paused){btn.disabled=true;btn.textContent='▶ 再生してからタップ';hint.textContent='中央の再生ボタンを押してください';return;}
   btn.disabled=false;
@@ -342,6 +369,8 @@ function doTap(){
   S.lyrics[S.tapIndex].time=audio.currentTime;S.tapIndex++;renderLyricList();updateTapBtn();
 }
 $('tapBtn').addEventListener('click',doTap);
+$('tapLayer').addEventListener('click',doTap);
+$('tapFab').addEventListener('click',e=>{e.stopPropagation();doTap();});
 document.addEventListener('keydown',e=>{if(e.code==='Space'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){e.preventDefault();if(!audio.paused)doTap();}});
 $('resetTiming').addEventListener('click',()=>{S.lyrics.forEach(l=>l.time=null);S.tapIndex=0;renderLyricList();updateTapBtn();toast('記録をリセットしました');});
 $('backOne').addEventListener('click',()=>{if(S.tapIndex>0){S.tapIndex--;S.lyrics[S.tapIndex].time=null;renderLyricList();updateTapBtn();}});
