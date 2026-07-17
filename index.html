@@ -107,12 +107,12 @@
     <h2 class="sec">素材</h2>
     <div class="field">
       <label class="lab">音楽ファイル (mp3 / wav / m4a)</label>
-      <button class="btn wide filebtn">🎵 音楽を選ぶ<input type="file" id="audioFile" accept="audio/*"></button>
+      <label class="btn wide filebtn">🎵 音楽を選ぶ<input type="file" id="audioFile" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg"></label>
       <div class="fname" id="audioName"></div>
     </div>
     <div class="field">
       <label class="lab">背景 (動画 mp4 / 画像 / なし)</label>
-      <button class="btn wide filebtn">🎬 背景を選ぶ<input type="file" id="bgFile" accept="video/*,image/*"></button>
+      <label class="btn wide filebtn">🎬 背景を選ぶ<input type="file" id="bgFile" accept="video/*,image/*,.mp4,.mov,.webm,.png,.jpg,.jpeg,.gif"></label>
       <div class="fname" id="bgName"></div>
       <button class="btn sm" id="clearBg" style="margin-top:6px">背景をクリア</button>
     </div>
@@ -290,7 +290,9 @@ function fmt(s){if(!isFinite(s))return '0:00';const m=Math.floor(s/60),ss=Math.f
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 // ---------- files ----------
-$('audioFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;audio.src=URL.createObjectURL(f);$('audioName').textContent=f.name;audio.load();toast('音楽を読み込みました');});
+$('audioFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;try{if(audio.src)URL.revokeObjectURL(audio.src);}catch(_){}audio.src=URL.createObjectURL(f);$('audioName').textContent=f.name;audio.load();});
+audio.addEventListener('canplay',()=>{if(audio.src)toast('音楽を読み込みました');});
+audio.addEventListener('error',()=>{if(audio.src)toast('この音声ファイルは再生できませんでした（別のmp3をお試しください）');});
 $('bgFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);if(f.type.startsWith('video')){bgVideo.src=url;bgVideo.load();bgVideo.play().catch(()=>{});S.bgType='video';}else{bgImage.src=url;S.bgType='image';}$('bgName').textContent=f.name;toast('背景を読み込みました');});
 $('clearBg').addEventListener('click',()=>{S.bgType='none';bgVideo.pause();bgVideo.removeAttribute('src');bgImage.removeAttribute('src');$('bgName').textContent='';toast('背景をクリアしました');});
 
