@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyric Video Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0f;--panel:#131320;--panel2:#1b1b2e;--line:#2a2a42;
+    --ink:#e8e8f0;--muted:#8888a8;--accent:#ff2e88;--accent2:#00e5ff;--ok:#3ddc97;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Zen Kaku Gothic New','Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+  .topbar{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,#12121f,#0a0a0f);position:sticky;top:0;z-index:20}
+  .logo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:18px;letter-spacing:1px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .logo small{display:block;font-family:'Zen Kaku Gothic New';font-weight:400;font-size:10px;letter-spacing:3px;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+  .layout{display:grid;grid-template-columns:330px 1fr 310px;min-height:calc(100vh - 55px)}
+  .col{padding:18px;overflow-y:auto;max-height:calc(100vh - 55px)}
+  .col.left{border-right:1px solid var(--line);background:var(--panel)}
+  .col.right{border-left:1px solid var(--line);background:var(--panel)}
+  .col.center{background:var(--bg);display:flex;flex-direction:column;align-items:center}
+  h2.sec{font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin:22px 0 10px;font-weight:700;display:flex;align-items:center;gap:8px}
+  h2.sec:first-child{margin-top:0}
+  h2.sec::before{content:"";width:3px;height:12px;background:var(--accent);border-radius:2px}
+  .field{margin-bottom:12px}
+  label.lab{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+  input[type=text],input[type=number],textarea,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 11px;font-size:13px;font-family:inherit}
+  textarea{resize:vertical;min-height:120px;line-height:1.7}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;user-select:none}
+  .btn:hover{border-color:var(--accent);background:#22223a}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),#ff5ea0);border:none;color:#fff}
+  .btn.cyan{background:linear-gradient(90deg,#0099b8,var(--accent2));border:none;color:#04121a}
+  .btn.wide{width:100%}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.rec{background:linear-gradient(90deg,#e01f5a,#ff2e88);border:none;color:#fff}
+  .filebtn{position:relative;overflow:hidden}
+  .filebtn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .fname{font-size:11px;color:var(--ok);margin-top:5px;word-break:break-all}
+  .row{display:flex;gap:8px}
+  .row>*{flex:1}
+  .stage-wrap{width:100%;max-width:720px;margin-top:6px}
+  .canvas-frame{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  #stage{width:100%;height:100%;display:block}
+  .rec-dot{position:absolute;top:12px;left:12px;display:none;align-items:center;gap:7px;background:rgba(0,0,0,.6);padding:5px 11px;border-radius:20px;font-size:12px;font-weight:700}
+  .rec-dot.on{display:flex}
+  .rec-dot i{width:9px;height:9px;border-radius:50%;background:#ff2e55;animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.2}}
+  .transport{display:flex;align-items:center;gap:12px;width:100%;max-width:720px;margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .play-btn{width:46px;height:46px;border-radius:50%;flex:none;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
+  .seek{flex:1;display:flex;flex-direction:column;gap:4px}
+  .seek input[type=range]{width:100%;accent-color:var(--accent)}
+  .time{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .tap-btn{width:100%;padding:22px;font-size:16px;font-weight:900;background:linear-gradient(135deg,#ff2e88,#7a2eff);border:none;border-radius:12px;color:#fff;cursor:pointer;letter-spacing:1px;box-shadow:0 8px 24px rgba(255,46,136,.3);font-family:inherit}
+  .tap-btn:active{transform:scale(.98)}
+  .tap-btn:disabled{opacity:.4}
+  .tap-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+  .lyric-list{margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .lrow{display:flex;align-items:center;gap:6px;padding:7px 10px;border-bottom:1px solid var(--line);font-size:12px;flex-wrap:wrap;row-gap:5px}
+  .lrow:last-child{border-bottom:none}
+  .lrow.active{background:rgba(255,46,136,.14)}
+  .lrow .idx{color:var(--muted);width:20px;flex:none;font-variant-numeric:tabular-nums}
+  .lrow .txt{flex:1;min-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lrow .pat{width:118px;flex:none;font-size:11px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:5px;padding:3px 4px}
+  .lrow .tm{width:60px;flex:none;font-variant-numeric:tabular-nums;color:var(--accent2);background:var(--panel2);border:1px solid var(--line);text-align:right;font-size:11px;padding:3px 5px;border-radius:5px}
+  .lrow .tm.unset{color:var(--muted)}
+  .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .preset{padding:10px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;text-align:center;font-size:12px;font-weight:700;transition:.15s}
+  .preset:hover{border-color:var(--accent)}
+  .preset.on{border-color:var(--accent);background:rgba(255,46,136,.15)}
+  .preset .sw{height:26px;border-radius:5px;margin-bottom:6px}
+  .ctrl{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
+  .ctrl label{font-size:12px;color:var(--muted)}
+  .ctrl input[type=range]{width:130px;accent-color:var(--accent)}
+  .ctrl input[type=color]{width:38px;height:28px;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer;padding:2px}
+  .ctrl select{width:158px}
+  .ctrl .val{font-size:11px;color:var(--accent2);width:34px;text-align:right;font-variant-numeric:tabular-nums}
+  .checkrow{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink);margin-bottom:8px;cursor:pointer;user-select:none}
+  .checkrow input{width:17px;height:17px;accent-color:var(--accent);flex:none}
+  .mini-tip{font-size:10px;color:var(--muted);margin:-2px 0 12px 26px;line-height:1.5}
+  .hint-box{font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;line-height:1.6}
+  .hint-box b{color:var(--ink)}
+  .kbd{display:inline-block;background:#000;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--ink)}
+  .export-note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .fmt-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--accent2);margin-left:6px}
+  .divider{height:1px;background:var(--line);margin:18px 0}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);color:var(--ink);padding:11px 18px;border-radius:10px;font-size:13px;z-index:100;box-shadow:0 8px 30px rgba(0,0,0,.5);display:none;max-width:90vw}
+  .toast.show{display:block;animation:pop .2s}
+  @keyframes pop{from{transform:translateX(-50%) translateY(10px);opacity:0}}
+  @media(max-width:980px){.layout{grid-template-columns:1fr}.col{max-height:none}.col.left,.col.right{border:none;border-bottom:1px solid var(--line)}.col.center{order:-1}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">LYRIC VIDEO STUDIO<small>TAP TO SYNC · A-K MOTION · CHROMA · EXPORT</small></div>
+</div>
+
+<div class="layout">
+
+  <div class="col left">
+    <h2 class="sec">素材</h2>
+    <div class="field">
+      <label class="lab">音楽ファイル (mp3 / wav / m4a)</label>
+      <button class="btn wide filebtn">🎵 音楽を選ぶ<input type="file" id="audioFile" accept="audio/*"></button>
+      <div class="fname" id="audioName"></div>
+    </div>
+    <div class="field">
+      <label class="lab">背景 (動画 mp4 / 画像 / なし)</label>
+      <button class="btn wide filebtn">🎬 背景を選ぶ<input type="file" id="bgFile" accept="video/*,image/*"></button>
+      <div class="fname" id="bgName"></div>
+      <button class="btn sm" id="clearBg" style="margin-top:6px">背景をクリア</button>
+    </div>
+
+    <h2 class="sec">歌詞</h2>
+    <div class="field">
+      <label class="lab">1行 = 1フレーズ。改行で区切る</label>
+      <textarea id="lyricInput" placeholder="夜を駆ける&#10;きみの声が&#10;ノイズになって&#10;消えていく"></textarea>
+      <button class="btn sm wide" id="loadLyrics" style="margin-top:6px">歌詞を読み込む</button>
+    </div>
+
+    <h2 class="sec">タイミング記録</h2>
+    <div class="hint-box" style="margin-bottom:10px">再生を押して曲を流し、歌詞が始まる瞬間に<b>下のボタン</b>か<span class="kbd">Space</span>を叩く。1回叩くごとに次の行の時間が記録されます。</div>
+    <button class="tap-btn" id="tapBtn" disabled>▶ 再生してからタップ</button>
+    <div class="tap-hint" id="tapHint">歌詞を読み込むと記録できます</div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sm" id="resetTiming">記録をリセット</button>
+      <button class="btn sm" id="backOne">1つ戻す</button>
+    </div>
+    <div class="mini-tip" style="margin-left:0">各行の <b style="color:var(--muted)">モーション</b> 欄で行ごとに演出を指定できます（空欄=全体設定）。</div>
+    <div class="lyric-list" id="lyricList"></div>
+  </div>
+
+  <div class="col center">
+    <div class="stage-wrap">
+      <div class="canvas-frame">
+        <canvas id="stage" width="1280" height="720"></canvas>
+        <div class="rec-dot" id="recDot"><i></i>REC <span id="recTime">0:00</span></div>
+      </div>
+    </div>
+    <div class="transport">
+      <button class="play-btn" id="playBtn">▶</button>
+      <div class="seek">
+        <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
+        <div class="time"><span id="curTime">0:00</span> / <span id="durTime">0:00</span></div>
+      </div>
+      <button class="btn sm" id="stopBtn">⏹</button>
+    </div>
+    <div style="width:100%;max-width:720px;margin-top:14px">
+      <h2 class="sec">書き出し</h2>
+      <div class="row"><button class="btn rec wide" id="recordBtn">● 録画して書き出し<span class="fmt-badge" id="fmtBadge">MP4</span></button></div>
+      <div class="export-note" id="exportNote">再生開始から曲の最後まで、実時間で録画します。録画中はこのタブを前面にしておいてください。<br><b style="color:var(--ink)">合成する場合:</b> 右パネルの「グリーンバック」をONにして書き出し → 編集ソフトで緑を抜いて自分のMV映像に重ねられます。</div>
+    </div>
+  </div>
+
+  <div class="col right">
+    <h2 class="sec">スタイル プリセット</h2>
+    <div class="preset-grid" id="presetGrid"></div>
+
+    <div class="divider"></div>
+    <h2 class="sec">文字</h2>
+    <div class="ctrl"><label>フォント</label>
+      <select id="fontSel">
+        <option value="'Zen Kaku Gothic New',sans-serif">Zen角ゴシック</option>
+        <option value="'Noto Sans JP',sans-serif">Noto Sans</option>
+        <option value="'M PLUS 1p',sans-serif">M PLUS 1p</option>
+        <option value="'Dela Gothic One',sans-serif">Dela Gothic (極太)</option>
+        <option value="'Noto Serif JP',serif">Noto明朝</option>
+        <option value="'Shippori Mincho',serif">しっぽり明朝</option>
+        <option value="'Orbitron',sans-serif">Orbitron (英)</option>
+        <option value="'Bebas Neue',sans-serif">Bebas Neue (英)</option>
+      </select>
+    </div>
+    <div class="ctrl"><label>文字色</label><input type="color" id="textColor" value="#ffffff"></div>
+    <div class="ctrl"><label>サイズ</label><input type="range" id="fontSize" min="30" max="160" value="72"><span class="val" id="fontSizeV">72</span></div>
+    <div class="ctrl"><label>太さ</label>
+      <select id="fontWeight"><option value="400">標準</option><option value="700" selected>太字</option><option value="900">極太</option></select>
+    </div>
+    <div class="ctrl"><label>グロー(発光)</label><input type="range" id="glow" min="0" max="60" value="20"><span class="val" id="glowV">20</span></div>
+
+    <div class="divider"></div>
+    <h2 class="sec">動き (A-K モーション)</h2>
+    <div class="ctrl"><label>登場モーション</label>
+      <select id="animType">
+        <option value="fade">フェード</option>
+        <option value="rise">下から浮上</option>
+        <option value="scale">ズームイン</option>
+        <option value="burstIn">A 画面外突入</option>
+        <option value="teleport">B グリッチテレポート</option>
+        <option value="sweep">C 高速スイープ</option>
+        <option value="channelSplit">D RGBチャンネル分裂</option>
+        <option value="subliminal">E サブリミナル連打</option>
+        <option value="chromaTrail">F 色残像トレイル</option>
+        <option value="wireframe">G ワイヤーフレーム構築</option>
+        <option value="datamosh">H データモッシュ</option>
+        <option value="bsod">I BSOD強打</option>
+        <option value="floppySeek">J フロッピーシーク</option>
+        <option value="charReveal">K 一文字ずつ表示</option>
+        <option value="type">タイプライター</option>
+      </select>
+    </div>
+    <label class="checkrow"><input type="checkbox" id="mixPatterns"> 🎲 行ごとにモーションを自動ミックス</label>
+    <div class="mini-tip">ONにすると各行にA-Kをランダム配分。スキルの「セクション別ローテ」風になります。行ごとの個別指定が優先されます。</div>
+    <div class="ctrl"><label>配置</label>
+      <select id="layout"><option value="center">中央</option><option value="scatter">ランダム散らし</option><option value="lower">下寄せ(字幕)</option></select>
+    </div>
+    <div class="ctrl"><label>グリッチ強度</label><input type="range" id="glitch" min="0" max="100" value="0"><span class="val" id="glitchV">0</span></div>
+    <div class="ctrl"><label>スキャンライン</label><input type="range" id="scan" min="0" max="100" value="0"><span class="val" id="scanV">0</span></div>
+
+    <div class="divider"></div>
+    <h2 class="sec">背景</h2>
+    <label class="checkrow"><input type="checkbox" id="chroma"> 🟢 グリーンバック (クロマキー合成用)</label>
+    <div class="mini-tip">ONだと背景が単色グリーンに固定。文字だけ書き出して、自分のMV映像に編集ソフトで合成できます。</div>
+    <div class="ctrl"><label>背景色 (動画なし時)</label><input type="color" id="bgColor" value="#0a0a12"></div>
+    <div class="ctrl"><label>背景色2 (グラデ)</label><input type="color" id="bgColor2" value="#1a0a2e"></div>
+    <div class="ctrl"><label>暗さ(オーバーレイ)</label><input type="range" id="dim" min="0" max="90" value="0"><span class="val" id="dimV">0</span></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<audio id="audio" crossorigin="anonymous"></audio>
+<video id="bgVideo" crossorigin="anonymous" muted loop playsinline style="display:none"></video>
+<img id="bgImage" crossorigin="anonymous" style="display:none" alt="">
+
+<script>
+"use strict";
+
+const PATTERN_OPTS=[
+ ['fade','フェード'],['rise','下から浮上'],['scale','ズームイン'],
+ ['burstIn','A 画面外突入'],['teleport','B テレポート'],['sweep','C 高速スイープ'],
+ ['channelSplit','D RGB分裂'],['subliminal','E サブリミナル'],['chromaTrail','F 色残像'],
+ ['wireframe','G ワイヤー構築'],['datamosh','H データモッシュ'],['bsod','I BSOD強打'],
+ ['floppySeek','J フロッピー'],['charReveal','K 一文字ずつ'],['type','タイプライター']
+];
+const MIXSET=['burstIn','teleport','channelSplit','sweep','charReveal','floppySeek','datamosh','bsod','chromaTrail','subliminal'];
+
+const S = {
+  lyrics: [],
+  tapIndex: 0,
+  bgType: 'none',
+  style: {
+    preset:'cyber', font:"'Zen Kaku Gothic New',sans-serif", textColor:'#ffffff',
+    fontSize:72, fontWeight:'700', glow:20, animType:'fade', layout:'center',
+    glitch:0, scan:0, bgColor:'#0a0a12', bgColor2:'#1a0a2e', dim:0, chroma:false, mix:false
+  }
+};
+
+const PRESETS = {
+  cyber:  {label:'サイバーパンク', sw:'linear-gradient(135deg,#ff2e88,#00e5ff)',
+    s:{font:"'Orbitron',sans-serif",textColor:'#00e5ff',fontSize:80,fontWeight:'900',glow:36,animType:'channelSplit',layout:'scatter',glitch:45,scan:35,bgColor:'#05010f',bgColor2:'#1a0033',dim:20,chroma:false,mix:true}},
+  minimal:{label:'ミニマル', sw:'linear-gradient(135deg,#ffffff,#cccccc)',
+    s:{font:"'Zen Kaku Gothic New',sans-serif",textColor:'#ffffff',fontSize:64,fontWeight:'400',glow:6,animType:'fade',layout:'center',glitch:0,scan:0,bgColor:'#101014',bgColor2:'#101014',dim:0,chroma:false,mix:false}},
+  retro:  {label:'レトロ/デジタル', sw:'linear-gradient(135deg,#ffd23f,#ff6b35)',
+    s:{font:"'Bebas Neue',sans-serif",textColor:'#ffd23f',fontSize:104,fontWeight:'700',glow:22,animType:'sweep',layout:'center',glitch:18,scan:60,bgColor:'#1a0d00',bgColor2:'#3d1a00',dim:10,chroma:false,mix:false}},
+  neon:   {label:'ネオン', sw:'linear-gradient(135deg,#39ff14,#ff00ff)',
+    s:{font:"'M PLUS 1p',sans-serif",textColor:'#39ff14',fontSize:76,fontWeight:'800',glow:44,animType:'scale',layout:'center',glitch:8,scan:15,bgColor:'#000000',bgColor2:'#0a0020',dim:15,chroma:false,mix:false}},
+  glitchcity:{label:'グリッチシティ', sw:'linear-gradient(135deg,#ff0044,#00e5ff)',
+    s:{font:"'Dela Gothic One',sans-serif",textColor:'#ffffff',fontSize:82,fontWeight:'900',glow:14,animType:'bsod',layout:'scatter',glitch:70,scan:45,bgColor:'#000005',bgColor2:'#10002a',dim:25,chroma:false,mix:true}},
+  mono:   {label:'モノクロ映画', sw:'linear-gradient(135deg,#e8e8e8,#555)',
+    s:{font:"'Shippori Mincho',serif",textColor:'#f0f0f0',fontSize:60,fontWeight:'700',glow:4,animType:'fade',layout:'lower',glitch:0,scan:8,bgColor:'#0a0a0a',bgColor2:'#141414',dim:30,chroma:false,mix:false}},
+  dream:  {label:'ドリーミー', sw:'linear-gradient(135deg,#ff9ec7,#a0e9ff)',
+    s:{font:"'Noto Serif JP',serif",textColor:'#fff0f7',fontSize:66,fontWeight:'700',glow:30,animType:'rise',layout:'center',glitch:0,scan:0,bgColor:'#1a1030',bgColor2:'#301a40',dim:5,chroma:false,mix:false}},
+  chroma: {label:'クロマキー合成', sw:'linear-gradient(135deg,#00b140,#00ff88)',
+    s:{font:"'Dela Gothic One',sans-serif",textColor:'#ffffff',fontSize:86,fontWeight:'900',glow:0,animType:'burstIn',layout:'scatter',glitch:0,scan:0,bgColor:'#00b140',bgColor2:'#00b140',dim:0,chroma:true,mix:true}}
+};
+
+const $ = id => document.getElementById(id);
+const audio = $('audio'), bgVideo = $('bgVideo'), bgImage = $('bgImage');
+const canvas = $('stage'), ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height, SC = W/1280;
+const IN = 0.45, OUT = 0.40;
+
+// temp canvas for particle patterns
+const tmp = document.createElement('canvas'), tctx = tmp.getContext('2d');
+
+let toastT;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+function clamp01(x){return x<0?0:x>1?1:x;}
+function easeOut(p){p=clamp01(p);return 1-Math.pow(1-p,3);}
+function rnd(seed){const x=Math.sin(seed*127.1+31.7)*43758.5453;return x-Math.floor(x);}
+function fmt(s){if(!isFinite(s))return '0:00';const m=Math.floor(s/60),ss=Math.floor(s%60);return m+':'+String(ss).padStart(2,'0');}
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ---------- files ----------
+$('audioFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;audio.src=URL.createObjectURL(f);$('audioName').textContent=f.name;audio.load();toast('音楽を読み込みました');});
+$('bgFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);if(f.type.startsWith('video')){bgVideo.src=url;bgVideo.load();bgVideo.play().catch(()=>{});S.bgType='video';}else{bgImage.src=url;S.bgType='image';}$('bgName').textContent=f.name;toast('背景を読み込みました');});
+$('clearBg').addEventListener('click',()=>{S.bgType='none';bgVideo.pause();bgVideo.removeAttribute('src');bgImage.removeAttribute('src');$('bgName').textContent='';toast('背景をクリアしました');});
+
+// ---------- lyrics ----------
+$('loadLyrics').addEventListener('click',()=>{
+  const lines=$('lyricInput').value.split('\n').map(l=>l.trim()).filter(l=>l.length);
+  if(!lines.length){toast('歌詞を入力してください');return;}
+  S.lyrics=lines.map(t=>({text:t,time:null,pattern:''}));
+  S.tapIndex=0;renderLyricList();updateTapBtn();toast(lines.length+'行を読み込みました');
+});
+
+function patOptionsHtml(sel){
+  let h='<option value="">—(全体)</option>';
+  for(const [v,l] of PATTERN_OPTS){h+='<option value="'+v+'"'+(v===sel?' selected':'')+'>'+l+'</option>';}
+  return h;
+}
+function renderLyricList(){
+  const box=$('lyricList');box.innerHTML='';
+  S.lyrics.forEach((ly,i)=>{
+    const row=document.createElement('div');
+    row.className='lrow'+(i===S.tapIndex?' active':'');
+    row.innerHTML='<span class="idx">'+(i+1)+'</span><span class="txt">'+escapeHtml(ly.text)+'</span>';
+    const pat=document.createElement('select');pat.className='pat';pat.innerHTML=patOptionsHtml(ly.pattern||'');
+    pat.title='この行のモーション';
+    pat.addEventListener('change',()=>{S.lyrics[i].pattern=pat.value;});
+    row.appendChild(pat);
+    const tm=document.createElement('input');tm.className='tm'+(ly.time==null?' unset':'');
+    tm.value=ly.time!=null?ly.time.toFixed(2):'--';tm.title='秒数を直接編集';
+    tm.addEventListener('change',()=>{const v=parseFloat(tm.value);S.lyrics[i].time=isNaN(v)?null:Math.max(0,v);renderLyricList();});
+    row.appendChild(tm);
+    box.appendChild(row);
+  });
+}
+
+// ---------- tap ----------
+function updateTapBtn(){
+  const btn=$('tapBtn'),hint=$('tapHint');
+  if(!S.lyrics.length){btn.disabled=true;btn.textContent='▶ 歌詞を読み込む';hint.textContent='歌詞を読み込むと記録できます';return;}
+  if(audio.paused){btn.disabled=true;btn.textContent='▶ 再生してからタップ';hint.textContent='中央の再生ボタンを押してください';return;}
+  btn.disabled=false;
+  if(S.tapIndex>=S.lyrics.length){btn.textContent='✓ 全行 記録完了';btn.disabled=true;hint.textContent='記録完了。プレビューで確認できます';return;}
+  btn.textContent='⬇ この瞬間をマーク ('+(S.tapIndex+1)+'/'+S.lyrics.length+')';
+  hint.textContent='次: 「'+S.lyrics[S.tapIndex].text+'」';
+}
+function doTap(){
+  if(audio.paused||S.tapIndex>=S.lyrics.length||!S.lyrics.length)return;
+  S.lyrics[S.tapIndex].time=audio.currentTime;S.tapIndex++;renderLyricList();updateTapBtn();
+}
+$('tapBtn').addEventListener('click',doTap);
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){e.preventDefault();if(!audio.paused)doTap();}});
+$('resetTiming').addEventListener('click',()=>{S.lyrics.forEach(l=>l.time=null);S.tapIndex=0;renderLyricList();updateTapBtn();toast('記録をリセットしました');});
+$('backOne').addEventListener('click',()=>{if(S.tapIndex>0){S.tapIndex--;S.lyrics[S.tapIndex].time=null;renderLyricList();updateTapBtn();}});
+
+// ---------- transport ----------
+$('playBtn').addEventListener('click',()=>{if(audio.paused)audio.play();else audio.pause();});
+$('stopBtn').addEventListener('click',()=>{audio.pause();audio.currentTime=0;});
+audio.addEventListener('play',()=>{$('playBtn').textContent='⏸';if(S.bgType==='video')bgVideo.play().catch(()=>{});updateTapBtn();});
+audio.addEventListener('pause',()=>{$('playBtn').textContent='▶';if(S.bgType==='video')bgVideo.pause();updateTapBtn();});
+audio.addEventListener('loadedmetadata',()=>{$('durTime').textContent=fmt(audio.duration);});
+audio.addEventListener('timeupdate',()=>{$('curTime').textContent=fmt(audio.currentTime);if(audio.duration)$('seek').value=(audio.currentTime/audio.duration)*100;});
+$('seek').addEventListener('input',()=>{if(audio.duration)audio.currentTime=($('seek').value/100)*audio.duration;});
+
+// ---------- presets & controls ----------
+function buildPresets(){
+  const grid=$('presetGrid');
+  Object.entries(PRESETS).forEach(([key,p])=>{
+    const el=document.createElement('div');el.className='preset'+(key===S.style.preset?' on':'');el.dataset.key=key;
+    el.innerHTML='<div class="sw" style="background:'+p.sw+'"></div>'+p.label;
+    el.addEventListener('click',()=>applyPreset(key));grid.appendChild(el);
+  });
+}
+function applyPreset(key){
+  const p=PRESETS[key];if(!p)return;S.style.preset=key;Object.assign(S.style,p.s);syncControls();
+  document.querySelectorAll('.preset').forEach(e=>e.classList.toggle('on',e.dataset.key===key));toast(p.label+' を適用');
+}
+function syncControls(){
+  $('fontSel').value=S.style.font;$('textColor').value=S.style.textColor;
+  $('fontSize').value=S.style.fontSize;$('fontSizeV').textContent=S.style.fontSize;
+  $('fontWeight').value=S.style.fontWeight;$('glow').value=S.style.glow;$('glowV').textContent=S.style.glow;
+  $('animType').value=S.style.animType;$('layout').value=S.style.layout;
+  $('glitch').value=S.style.glitch;$('glitchV').textContent=S.style.glitch;
+  $('scan').value=S.style.scan;$('scanV').textContent=S.style.scan;
+  $('bgColor').value=S.style.bgColor;$('bgColor2').value=S.style.bgColor2;
+  $('dim').value=S.style.dim;$('dimV').textContent=S.style.dim;
+  $('chroma').checked=S.style.chroma;$('mixPatterns').checked=S.style.mix;
+}
+const bind=(id,key,isNum,valId)=>{$(id).addEventListener('input',()=>{S.style[key]=isNum?+$(id).value:$(id).value;if(valId)$(valId).textContent=$(id).value;});};
+bind('fontSel','font');bind('textColor','textColor');bind('fontSize','fontSize',true,'fontSizeV');bind('fontWeight','fontWeight');
+bind('glow','glow',true,'glowV');bind('animType','animType');bind('layout','layout');
+bind('glitch','glitch',true,'glitchV');bind('scan','scan',true,'scanV');
+bind('bgColor','bgColor');bind('bgColor2','bgColor2');bind('dim','dim',true,'dimV');
+$('chroma').addEventListener('change',()=>S.style.chroma=$('chroma').checked);
+$('mixPatterns').addEventListener('change',()=>S.style.mix=$('mixPatterns').checked);
+
+// ---------- render helpers ----------
+function scatterPos(i){const rx=((Math.sin(i*12.9898)*43758.5453)%1+1)%1;const ry=((Math.sin(i*78.233)*12543.123)%1+1)%1;return{x:0.2+rx*0.6,y:0.25+ry*0.5};}
+function setFont(size){ctx.font=S.style.fontWeight+' '+size+'px '+S.style.font;}
+function homePos(idx){const st=S.style;if(st.layout==='scatter'){const sp=scatterPos(idx);return[W*sp.x,H*sp.y];}if(st.layout==='lower')return[W/2,H*0.8];return[W/2,H/2];}
+function txt(text,x,y,color,alpha,glow){ctx.globalAlpha=clamp01(alpha);if(glow){ctx.shadowColor=color;ctx.shadowBlur=glow;}else{ctx.shadowBlur=0;}ctx.fillStyle=color;ctx.fillText(text,x,y);}
+function renderTextTile(text,size,weight,font,color){
+  tctx.font=weight+' '+size+'px '+font;const m=tctx.measureText(text);
+  const w=Math.max(4,Math.ceil(m.width)+40),h=Math.ceil(size*1.7);
+  tmp.width=w;tmp.height=h;tctx.font=weight+' '+size+'px '+font;tctx.textAlign='center';tctx.textBaseline='middle';
+  tctx.clearRect(0,0,w,h);tctx.fillStyle=color;tctx.fillText(text,w/2,h/2);return{canvas:tmp,w,h};
+}
+
+function activeLyric(t){
+  let idx=-1;
+  for(let i=0;i<S.lyrics.length;i++){if(S.lyrics[i].time!=null&&S.lyrics[i].time<=t)idx=i;else if(S.lyrics[i].time!=null&&S.lyrics[i].time>t)break;}
+  if(idx<0)return null;
+  const ly=S.lyrics[idx];let nextT=null;
+  for(let j=idx+1;j<S.lyrics.length;j++){if(S.lyrics[j].time!=null){nextT=S.lyrics[j].time;break;}}
+  const end=nextT!=null?nextT:ly.time+4;if(t>end)return null;
+  const pattern=ly.pattern||(S.style.mix?MIXSET[Math.floor(rnd(idx*3+1)*MIXSET.length)]:S.style.animType);
+  return{ly,idx,appear:t-ly.time,remain:end-t,total:end-ly.time,pattern};
+}
+
+function drawBackground(){
+  const st=S.style;
+  if(st.chroma){ctx.fillStyle='#00b140';ctx.fillRect(0,0,W,H);return;}
+  if(S.bgType==='video'&&bgVideo.readyState>=2)drawCover(bgVideo);
+  else if(S.bgType==='image'&&bgImage.complete&&bgImage.naturalWidth)drawCover(bgImage);
+  else{const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,st.bgColor);g.addColorStop(1,st.bgColor2);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);}
+  if(st.dim>0){ctx.fillStyle='rgba(0,0,0,'+(st.dim/100)+')';ctx.fillRect(0,0,W,H);}
+}
+function drawCover(media){
+  const mw=media.videoWidth||media.naturalWidth,mh=media.videoHeight||media.naturalHeight;
+  if(!mw||!mh){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);return;}
+  const r=Math.max(W/mw,H/mh),dw=mw*r,dh=mh*r;ctx.drawImage(media,(W-dw)/2,(H-dh)/2,dw,dh);
+}
+
+// ---------- MOTION ENGINE (A-K) ----------
+function drawLine(info){
+  const st=S.style,t=audio.currentTime;
+  const {ly,idx,appear,remain,total,pattern}=info;
+  const size=st.fontSize*SC, glow=st.glow*SC, color=st.textColor, text=ly.text;
+  setFont(size);ctx.textAlign='center';ctx.textBaseline='middle';
+  const [hx,hy]=homePos(idx);
+
+  switch(pattern){
+
+  case 'burstIn':{
+    const edges=[[-1.4*W,0],[0,-1.2*H],[1.4*W,0],[0,1.2*H]];
+    const ein=edges[idx%4],eout=edges[(idx+2)%4];let ox=0,oy=0,a=1;
+    if(appear<IN){const e=easeOut(appear/IN);ox=ein[0]*(1-e);oy=ein[1]*(1-e);a=e;
+      for(let k=1;k<=5;k++){const f=(1-e)*(k/6);txt(text,hx+ein[0]*f,hy+ein[1]*f,color,a*0.12,0);}
+    }else if(remain<OUT){const e=easeOut(1-remain/OUT);ox=eout[0]*e;oy=eout[1]*e;a=1-e;
+      txt(text,hx+8,hy,'#ff0044',a*0.5,0);txt(text,hx-8,hy,'#00e5ff',a*0.5,0);}
+    txt(text,hx+ox,hy+oy,color,a,glow);break;}
+
+  case 'teleport':{
+    const lock=appear>0.55;
+    if(!lock&&remain>OUT){const k=Math.floor(appear/0.11);
+      const rx2=rnd(idx*31+(k-1)*7),ry2=rnd(idx*17+(k-1)*13);
+      txt(text,W*(0.2+rx2*0.6),H*(0.2+ry2*0.6),'#00e5ff',0.22,0);
+      const rx=rnd(idx*31+k*7),ry=rnd(idx*17+k*13);
+      const flick=rnd(idx*5+k*3)>0.25?1:0.3;
+      txt(text,W*(0.2+rx*0.6),H*(0.2+ry*0.6),color,flick,glow);
+    }else{let a=1;if(remain<OUT)a=remain/OUT;txt(text,hx,hy,color,a,glow);}break;}
+
+  case 'sweep':{
+    const dir=(idx%2)?1:-1;const p=clamp01(appear/Math.max(total,0.2));
+    const x=dir>0?(-0.35*W+p*1.7*W):(1.35*W-p*1.7*W);
+    for(let k=1;k<=6;k++)txt(text,x-dir*k*36*SC,hy,color,0.12,0);
+    let a=1;if(appear<0.1)a=appear/0.1;if(remain<0.15)a=remain/0.15;
+    txt(text,x,hy,color,a,glow);break;}
+
+  case 'channelSplit':{
+    let e=1;if(appear<IN)e=easeOut(appear/IN);else if(remain<OUT)e=easeOut(remain/OUT);
+    const d=1-e;ctx.globalCompositeOperation='lighter';
+    txt(text,hx-d*0.45*W,hy,'#ff0033',0.9,0);
+    txt(text,hx,hy-d*0.4*H,'#00ff66',0.9,0);
+    txt(text,hx+d*0.45*W,hy,'#0066ff',0.9,0);
+    ctx.globalCompositeOperation='source-over';
+    if(e>0.85)txt(text,hx,hy,color,(e-0.85)/0.15,glow);break;}
+
+  case 'subliminal':{
+    if(appear<0.1){setFont(size*3);txt(text,hx,hy,color,1,glow);setFont(size);}
+    else{txt(text,hx,hy,color,(remain<OUT?remain/OUT:1),glow);
+      const ga=clamp01(1-(appear-0.1)/0.5)*0.2;if(ga>0){setFont(size*3);txt(text,hx,hy,color,ga,0);setFont(size);}}break;}
+
+  case 'chromaTrail':{
+    const p=clamp01(appear/Math.max(total,0.2));const cols=['#00ffff','#ff00ff','#ffff00'];
+    const path=pp=>[hx+(pp-0.5)*120*SC,hy+(pp-0.5)*60*SC];
+    for(let k=1;k<=4;k++){const pp=p-k*0.06;if(pp<0)continue;const q=path(pp);txt(text,q[0],q[1],cols[k%3],0.22,0);}
+    const c2=path(p);let a=1;if(appear<IN)a=easeOut(appear/IN);if(remain<OUT)a=remain/OUT;
+    txt(text,c2[0],c2[1],color,a,glow);break;}
+
+  case 'wireframe':{
+    const rev=clamp01(appear/(IN*1.3));const m=ctx.measureText(text);const wt=m.width;
+    if(appear<IN*1.3&&rev<1){ctx.save();ctx.beginPath();ctx.rect(hx-wt/2,hy-size,wt*rev,size*2);ctx.clip();
+      ctx.lineWidth=2*SC;ctx.strokeStyle=color;ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.strokeText(text,hx,hy);ctx.restore();}
+    else{const fillA=clamp01((appear-IN*1.3)/0.3);ctx.lineWidth=1.5*SC;ctx.strokeStyle=color;ctx.globalAlpha=0.35;ctx.shadowBlur=0;ctx.strokeText(text,hx,hy);
+      let a=fillA;if(remain<OUT)a=Math.min(a,remain/OUT);txt(text,hx,hy,color,a,glow);}break;}
+
+  case 'datamosh':{
+    let e=1;if(appear<IN)e=easeOut(appear/IN);const spread=1-e;
+    for(let k=-3;k<=3;k++){if(k===0)continue;txt(text,hx+k*40*SC*spread,hy+(rnd(idx*7+k)*6-3)*spread*SC,color,0.2*(1-Math.abs(k)/4)*spread,0);}
+    let a=e;if(remain<OUT)a=remain/OUT;txt(text,hx,hy,color,a,glow);break;}
+
+  case 'bsod':{
+    if(appear<0.12){const ph=1-appear/0.12;
+      ctx.globalAlpha=0.7*ph;ctx.fillStyle='#1030ff';ctx.fillRect(0,0,W,H);
+      ctx.globalAlpha=0.5*ph;ctx.fillStyle='#ffffff';
+      for(let y=0;y<H;y+=6){if(rnd(y+Math.floor(appear*200))>0.7)ctx.fillRect(0,y,W,2);}ctx.globalAlpha=1;}
+    let a=easeOut(appear/IN);if(remain<OUT)a=remain/OUT;
+    if(appear<0.2){txt(text,hx+6,hy,'#ff0044',a*0.6,0);txt(text,hx-6,hy,'#00e5ff',a*0.6,0);}
+    txt(text,hx,hy,color,a,glow);break;}
+
+  case 'floppySeek':{
+    const tile=renderTextTile(text,size,st.fontWeight,st.font,color);const tw=tile.w,th=tile.h;
+    const ox0=hx-tw/2,oy0=hy-th/2;let e=1;
+    if(appear<IN)e=easeOut(appear/IN);else if(remain<OUT)e=easeOut(remain/OUT);
+    if(e>=1){ctx.globalAlpha=1;ctx.shadowColor=color;ctx.shadowBlur=glow;ctx.drawImage(tile.canvas,ox0,oy0);ctx.shadowBlur=0;}
+    else{const cols=Math.max(6,Math.round(tw/(size*0.4))),rows=Math.max(2,Math.round(th/(size*0.4)));
+      const cw=tw/cols,ch=th/rows;ctx.shadowBlur=0;
+      for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){const seed=idx*131+i*7+j*13;
+        const dx=(rnd(seed)*2-1)*260*SC*(1-e),dy=(rnd(seed+99)*2-1)*160*SC*(1-e);
+        ctx.globalAlpha=e;ctx.drawImage(tile.canvas,i*cw,j*ch,cw,ch,ox0+i*cw+dx,oy0+j*ch+dy,cw,ch);}}break;}
+
+  case 'charReveal':{
+    const chars=[...text];const ws=chars.map(c=>ctx.measureText(c).width);
+    const twdt=ws.reduce((a,b)=>a+b,0);const x0=hx-twdt/2;
+    const iv=Math.min(0.09,Math.max(0.04,(total*0.5)/Math.max(chars.length,1)));
+    const n=Math.floor(appear/iv)+1;let accum=0;
+    for(let c=0;c<chars.length;c++){const cwid=ws[c];const cx2=x0+accum+cwid/2;accum+=cwid;if(c>=n)continue;
+      const jit=Math.sin(t*18+c*1.7)*2*SC;const blink=0.85+0.15*Math.sin(t*24+c*3);
+      let a=blink;if(remain<OUT)a=Math.min(a,remain/OUT);
+      if(c===n-1){txt(chars[c],cx2+5*SC,hy+jit,'#ff0044',a*0.5,0);txt(chars[c],cx2-5*SC,hy+jit,'#00e5ff',a*0.5,0);}
+      txt(chars[c],cx2,hy+jit,color,a,glow);}break;}
+
+  default:{
+    const e=easeOut(clamp01(appear/IN));let a=e;if(remain<OUT)a=Math.min(a,remain/OUT);
+    let dy=0,sc=1,text2=text;
+    if(pattern==='rise')dy=(1-e)*60*SC;
+    else if(pattern==='scale')sc=0.6+e*0.4;
+    else if(pattern==='type'){const nn=Math.floor(text.length*clamp01(appear/(total*0.5)));text2=text.slice(0,Math.max(1,nn));a=(remain<OUT?remain/OUT:1);}
+    ctx.save();ctx.translate(hx,hy+dy);ctx.scale(sc,sc);
+    if(glow){ctx.shadowColor=color;ctx.shadowBlur=glow;}
+    ctx.globalAlpha=a;ctx.fillStyle=color;ctx.fillText(text2,0,0);ctx.restore();}
+  }
+  ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+}
+
+function applyGlitch(){
+  const g=S.style.glitch/100;if(g<=0)return;
+  if(Math.random()<g*0.6){const n=2+Math.floor(g*5);
+    for(let k=0;k<n;k++){const sy=Math.random()*H,sh=4+Math.random()*30*g,shift=(Math.random()*2-1)*W*0.06*g;
+      ctx.drawImage(canvas,0,sy,W,sh,shift,sy,W,sh);}}
+}
+function drawScanlines(){const st=S.style;if(st.scan<=0)return;const a=(st.scan/100)*0.25;
+  ctx.save();ctx.globalAlpha=a;ctx.fillStyle='#000';for(let y=0;y<H;y+=4)ctx.fillRect(0,y,W,2);ctx.restore();}
+
+function frame(){
+  const t=audio.currentTime;
+  drawBackground();
+  const info=activeLyric(t);
+  if(info)drawLine(info);
+  ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  applyGlitch();
+  drawScanlines();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ---------- recording ----------
+let audioCtx,mediaDest,srcNode,recorder,chunks=[],recStartT=0,recTimer;
+function pickMime(){const cands=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];for(const m of cands){if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m;}return '';}
+(function(){const m=pickMime();$('fmtBadge').textContent=m.includes('mp4')?'MP4':'WebM';})();
+function setupAudioGraph(){if(audioCtx)return;audioCtx=new (window.AudioContext||window.webkitAudioContext)();srcNode=audioCtx.createMediaElementSource(audio);mediaDest=audioCtx.createMediaStreamDestination();srcNode.connect(audioCtx.destination);srcNode.connect(mediaDest);}
+
+$('recordBtn').addEventListener('click',async()=>{
+  if(recorder&&recorder.state==='recording'){recorder.stop();return;}
+  if(!audio.src){toast('先に音楽を読み込んでください');return;}
+  const mime=pickMime();if(!mime){toast('この環境は録画に対応していません');return;}
+  try{setupAudioGraph();if(audioCtx.state==='suspended')await audioCtx.resume();}catch(err){toast('音声の初期化に失敗しました');return;}
+  const vStream=canvas.captureStream(30);const aTracks=mediaDest.stream.getAudioTracks();
+  const mixed=new MediaStream([...vStream.getVideoTracks(),...aTracks]);
+  chunks=[];
+  try{recorder=new MediaRecorder(mixed,{mimeType:mime,videoBitsPerSecond:8000000});}catch(err){recorder=new MediaRecorder(mixed);}
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:mime.split(';')[0]});const ext=mime.includes('mp4')?'mp4':'webm';
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lyric-video.'+ext;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+    $('recDot').classList.remove('on');$('recordBtn').innerHTML='● 録画して書き出し<span class="fmt-badge">'+(ext==='mp4'?'MP4':'WebM')+'</span>';
+    clearInterval(recTimer);toast('書き出し完了！ '+ext.toUpperCase()+' をダウンロードしました');
+  };
+  audio.currentTime=0;if(S.bgType==='video'){bgVideo.currentTime=0;bgVideo.play().catch(()=>{});}
+  await audio.play();recorder.start(200);recStartT=Date.now();
+  $('recDot').classList.add('on');$('recordBtn').textContent='■ 録画を停止';
+  recTimer=setInterval(()=>{$('recTime').textContent=fmt((Date.now()-recStartT)/1000);},500);
+  toast('録画開始 — 曲の最後で自動停止します');
+  const onEnd=()=>{if(recorder&&recorder.state==='recording')recorder.stop();audio.removeEventListener('ended',onEnd);};
+  audio.addEventListener('ended',onEnd);
+});
+
+// ---------- init ----------
+buildPresets();applyPreset('cyber');renderLyricList();
+</script>
+</body>
+</html>
