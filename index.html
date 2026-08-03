@@ -162,6 +162,7 @@
       </div>
     </div>
     <div class="transport">
+      <button class="btn sm" id="cueBtn" title="頭出し(先頭に戻る)" style="flex:none">⏮</button>
       <button class="play-btn" id="playBtn">▶</button>
       <div class="seek">
         <input type="range" id="seek" min="0" max="100" value="0" step="0.1">
@@ -376,13 +377,30 @@ $('resetTiming').addEventListener('click',()=>{S.lyrics.forEach(l=>l.time=null);
 $('backOne').addEventListener('click',()=>{if(S.tapIndex>0){S.tapIndex--;S.lyrics[S.tapIndex].time=null;renderLyricList();updateTapBtn();}});
 
 // ---------- transport ----------
+function syncBgVideo(){
+  if(S.bgType!=='video')return;
+  const d=bgVideo.duration;
+  if(!isFinite(d)||d<=0)return;
+  try{bgVideo.currentTime=audio.currentTime%d;}catch(_){}
+}
+function cueStart(){
+  audio.currentTime=0;syncBgVideo();
+  $('seek').value=0;$('curTime').textContent='0:00';
+}
 $('playBtn').addEventListener('click',()=>{if(audio.paused)audio.play();else audio.pause();});
-$('stopBtn').addEventListener('click',()=>{audio.pause();audio.currentTime=0;});
+$('stopBtn').addEventListener('click',()=>{audio.pause();cueStart();});
+$('cueBtn').addEventListener('click',cueStart);
 audio.addEventListener('play',()=>{$('playBtn').textContent='⏸';if(S.bgType==='video')bgVideo.play().catch(()=>{});updateTapBtn();});
 audio.addEventListener('pause',()=>{$('playBtn').textContent='▶';if(S.bgType==='video')bgVideo.pause();updateTapBtn();});
 audio.addEventListener('loadedmetadata',()=>{$('durTime').textContent=fmt(audio.duration);});
-audio.addEventListener('timeupdate',()=>{$('curTime').textContent=fmt(audio.currentTime);if(audio.duration)$('seek').value=(audio.currentTime/audio.duration)*100;});
-$('seek').addEventListener('input',()=>{if(audio.duration)audio.currentTime=($('seek').value/100)*audio.duration;});
+let seeking=false;
+const seekEl=$('seek');
+function applySeek(){if(audio.duration){audio.currentTime=(seekEl.value/100)*audio.duration;syncBgVideo();$('curTime').textContent=fmt(audio.currentTime);}}
+seekEl.addEventListener('input',()=>{seeking=true;applySeek();});
+seekEl.addEventListener('change',()=>{applySeek();seeking=false;});
+seekEl.addEventListener('pointerup',()=>{seeking=false;});
+seekEl.addEventListener('touchend',()=>{seeking=false;});
+audio.addEventListener('timeupdate',()=>{$('curTime').textContent=fmt(audio.currentTime);if(!seeking&&audio.duration)seekEl.value=(audio.currentTime/audio.duration)*100;});
 
 // ---------- presets & controls ----------
 function buildPresets(){
