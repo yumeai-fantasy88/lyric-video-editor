@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Lyric Video Studio — v2.1.0</title>
+<title>Lyric Video Studio — v2.2.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -199,6 +199,7 @@ html{scroll-padding-top:64px}body{background:var(--bg)}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.toast,.tap-layer,.tap-fab{animation:none!important}}
 
+.font-sample{padding:16px 10px;margin:8px 0 10px;border:1px solid var(--line);border-radius:7px;font-size:22px;background:#10111d;color:#f4f3ff;overflow-wrap:anywhere}.font-sample+ .mini-tip{margin-top:6px}
 </style>
 </head>
 <body>
@@ -509,7 +510,7 @@ function applyPreset(key){
   document.querySelectorAll('.preset').forEach(e=>e.classList.toggle('on',e.dataset.key===key));toast(p.label+' を適用');
 }
 function syncControls(){
-  $('fontSel').value=S.style.font;$('textColor').value=S.style.textColor;
+  $('fontSel').value=S.style.font;if($('fontLatin')){$('fontLatin').value=S.style.fontLatin||'';refreshStudioFont();}$('textColor').value=S.style.textColor;
   $('fontSize').value=S.style.fontSize;$('fontSizeV').textContent=S.style.fontSize;
   $('fontWeight').value=S.style.fontWeight;$('glow').value=S.style.glow;$('glowV').textContent=S.style.glow;
   $('animType').value=S.style.animType;$('layout').value=S.style.layout;
@@ -529,7 +530,7 @@ $('mixPatterns').addEventListener('change',()=>S.style.mix=$('mixPatterns').chec
 
 // ---------- render helpers ----------
 function scatterPos(i){const rx=((Math.sin(i*12.9898)*43758.5453)%1+1)%1;const ry=((Math.sin(i*78.233)*12543.123)%1+1)%1;return{x:0.2+rx*0.6,y:0.25+ry*0.5};}
-function setFont(size){ctx.font=S.style.fontWeight+' '+size+'px '+S.style.font;}
+function setFont(size){ctx.font=S.style.fontWeight+' '+size+'px '+fontStack();}
 function homePos(idx){const st=S.style;if(st.layout==='scatter'){const sp=scatterPos(idx);const half=Math.min(W*.44,ctx.measureText(S.lyrics[idx]?.text||'').width/2);return[Math.max(half+W*.06,Math.min(W-half-W*.06,W*sp.x)),H*sp.y];}if(st.layout==='lower')return[W/2,H*0.8];return[W/2,H/2];}
 function txt(text,x,y,color,alpha,glow){ctx.globalAlpha=clamp01(alpha);if(glow){ctx.shadowColor=color;ctx.shadowBlur=glow;}else{ctx.shadowBlur=0;}ctx.fillStyle=color;if(S.style.outline){ctx.lineWidth=S.style.outline*SC;ctx.lineJoin='round';ctx.strokeStyle='#08090d';ctx.strokeText(text,x,y);}ctx.fillText(text,x,y);}
 function renderTextTile(text,size,weight,font,color){
@@ -643,7 +644,7 @@ function drawLine(info){
     txt(text,hx,hy,color,a,glow);break;}
 
   case 'floppySeek':{
-    const tile=renderTextTile(text,size,st.fontWeight,st.font,color);const tw=tile.w,th=tile.h;
+    const tile=renderTextTile(text,size,st.fontWeight,fontStack(),color);const tw=tile.w,th=tile.h;
     const ox0=hx-tw/2,oy0=hy-th/2;let e=1;
     if(appear<IN)e=easeOut(appear/IN);else if(remain<OUT)e=easeOut(remain/OUT);
     if(e>=1){ctx.globalAlpha=1;ctx.shadowColor=color;ctx.shadowBlur=glow;ctx.drawImage(tile.canvas,ox0,oy0);ctx.shadowBlur=0;}
@@ -722,7 +723,7 @@ $('recordBtn').addEventListener('click',exportVideo);
 // ---------- Motion Desk ----------
 let timingMode=false, selectedLine=0, zoom=1, wavePeaks=[], undoStack=[], redoStack=[], pendingHistory=null;
 let exportBusy=false, exportCancelled=false, exportingStream=null, autoSaveTimer;
-S.style.outline=0;S.style.spatial=35;
+S.style.outline=0;S.style.spatial=35;S.style.fontLatin='';
 const defaultStyle={...S.style};
 const isRecording=()=>exportBusy;
 function togglePlay(){if(isRecording())return;if(!audio.src){toast('音楽を選ぶか、デモを試してください');return;}if(audio.paused)audio.play().catch(()=>toast('音声を再生できませんでした'));else audio.pause();}
@@ -817,14 +818,14 @@ function parseSubtitles(text){const lines=[];if(text.includes('-->')){for(const 
 $('subtitleFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const lyrics=parseSubtitles(await f.text());if(!lyrics.length)throw Error();const p=validProject({version:2,lyrics,style:S.style,name:$('projectName').value});checkpoint();restoreSnapshot(JSON.stringify(p));toast(`${lyrics.length}行の字幕を読み込みました`);}catch(_){toast('時間順のLRCまたはSRTファイルを選んでください');}e.target.value='';};
 function srtTime(t){const ms=Math.round(t*1000);return `${String(Math.floor(ms/3600000)).padStart(2,'0')}:${String(Math.floor(ms/60000)%60).padStart(2,'0')}:${String(Math.floor(ms/1000)%60).padStart(2,'0')},${String(ms%1000).padStart(3,'0')}`;}
 $('saveSrt').onclick=()=>{const lyrics=S.lyrics.filter(l=>l.time!=null);if(!lyrics.length){toast('先にタイミングを記録してください');return;}download(lyrics.map((l,i)=>`${i+1}\n${srtTime(l.time)} --> ${srtTime(Math.min(l.end??Infinity,lyrics[i+1]?.time??Math.min(l.time+4,duration())))}\n${l.text}\n`).join('\n'),fileBase()+'.srt','text/plain;charset=utf-8');};
-$('demo').onclick=()=>{if(S.lyrics.length&&!confirm('現在の歌詞をデモに置き換えますか？「戻す」で歌詞を復元できます。'))return;checkpoint();audio.pause();const rate=22050,n=rate*12,buf=new ArrayBuffer(44+n*2),dv=new DataView(buf),str=(o,s)=>[...s].forEach((c,i)=>dv.setUint8(o+i,c.charCodeAt(0)));str(0,'RIFF');dv.setUint32(4,36+n*2,true);str(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,rate,true);dv.setUint32(28,rate*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);str(36,'data');dv.setUint32(40,n*2,true);for(let i=0;i<n;i++){const t=i/rate,b=t%.5,env=Math.exp(-b*24),mel=Math.sin(t*Math.PI*2*[220,261.63,329.63,293.66][Math.floor(t/3)%4])*.045;dv.setInt16(44+i*2,(Math.sin(2*Math.PI*(70*b+2*(1-Math.exp(-b*30))))*env*.3+mel)*Math.min(1,(12-t)*6)*32767,true);}if(audio.src)URL.revokeObjectURL(audio.src);const blob=new Blob([buf],{type:'audio/wav'});audio.src=URL.createObjectURL(blob);audio.load();loadWave(blob);$('audioName').textContent='デモ・ガイド音 / 120 BPM';$('projectName').value='Midnight / Demo';S.lyrics=['夜をほどいて','声は光になる','まだ見ぬ、その先へ','MAKE IT MOVE'].map((text,i)=>({text,time:i*3,pattern:['burstIn','chromaTrail','wireframe','channelSplit'][i]}));S.tapIndex=4;applyPreset('minimal');Object.assign(S.style,{fontSize:100,fontWeight:'900',textColor:'#cfed75',bgColor:'#101417',bgColor2:'#26312a',spatial:65});syncControls();syncExtras();$('lyricInput').value=S.lyrics.map(l=>l.text).join('\n');renderLyricList();audio.currentTime=1;timingMode=false;$('timingMode').checked=false;updateTapBtn();scheduleSave();document.querySelector('.layout').dataset.mobile='preview';toast('12秒のデモです。再生してモーションを確認できます');};
+$('demo').onclick=()=>{if(S.lyrics.length&&!confirm('現在の歌詞をデモに置き換えますか？「戻す」で歌詞を復元できます。'))return;checkpoint();audio.pause();const rate=22050,n=rate*12,buf=new ArrayBuffer(44+n*2),dv=new DataView(buf),str=(o,s)=>[...s].forEach((c,i)=>dv.setUint8(o+i,c.charCodeAt(0)));str(0,'RIFF');dv.setUint32(4,36+n*2,true);str(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,rate,true);dv.setUint32(28,rate*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);str(36,'data');dv.setUint32(40,n*2,true);for(let i=0;i<n;i++){const t=i/rate,b=t%.5,env=Math.exp(-b*24),mel=Math.sin(t*Math.PI*2*[220,261.63,329.63,293.66][Math.floor(t/3)%4])*.045;dv.setInt16(44+i*2,(Math.sin(2*Math.PI*(70*b+2*(1-Math.exp(-b*30))))*env*.3+mel)*Math.min(1,(12-t)*6)*32767,true);}if(audio.src)URL.revokeObjectURL(audio.src);const blob=new Blob([buf],{type:'audio/wav'});audio.src=URL.createObjectURL(blob);audio.load();loadWave(blob);$('audioName').textContent='デモ・ガイド音 / 120 BPM';$('projectName').value='Midnight / Demo';S.lyrics=['夜をほどいて','声は光になる','まだ見ぬ、その先へ','MAKE IT MOVE'].map((text,i)=>({text,time:i*3,pattern:''}));S.tapIndex=4;applyPreset(PRESETS[S.style.preset]?S.style.preset:'minimal');syncControls();syncExtras();$('lyricInput').value=S.lyrics.map(l=>l.text).join('\n');renderLyricList();audio.currentTime=1;timingMode=false;$('timingMode').checked=false;updateTapBtn();scheduleSave();document.querySelector('.layout').dataset.mobile='preview';toast('12秒のデモです。再生してモーションを確認できます');};
 
 // Real-time export: initialize and seek before recording, clean up all tracks.
 function resetExportUI(){exportBusy=false;clearInterval(recTimer);if(exportingStream)exportingStream.getVideoTracks().forEach(t=>t.stop());exportingStream=null;capTrack=null;$('recDot').classList.remove('on');$('cancelExport').hidden=true;$('exportProgress').hidden=true;document.querySelectorAll('[data-export-disabled]').forEach(el=>{el.disabled=false;el.removeAttribute('data-export-disabled');});$('recordBtn').textContent='動画を書き出す';updateTapBtn();}
 function seekMedia(media,time){return new Promise((resolve,reject)=>{if(Math.abs(media.currentTime-time)<.001&&!media.seeking){resolve();return;}const done=()=>{clearTimeout(timer);media.removeEventListener('seeked',done);resolve();};const timer=setTimeout(()=>{media.removeEventListener('seeked',done);reject(Error('先頭への移動に時間がかかっています'));},8000);media.addEventListener('seeked',done);media.currentTime=time;});}
 async function exportVideo(){if(isRecording())return;if(!audio.src||!Number.isFinite(audio.duration)||audio.duration<=0){toast('再生できる音楽を先に読み込んでください');return;}if(!S.lyrics.length||S.lyrics.some(l=>l.time==null)){toast('すべての歌詞の開始時間を記録してください');return;}const mime=pickMime();if(!mime||!canvas.captureStream){toast('このブラウザは動画の書き出しに対応していません');return;}exportBusy=true;exportCancelled=false;audio.pause();timingMode=false;$('timingMode').checked=false;updateTapBtn();FPS=+$('exportFps').value;FRAME_MS=1000/FPS;
  document.querySelectorAll('button,input,select,textarea').forEach(el=>{if(el.id==='cancelExport'||el.disabled)return;el.disabled=true;el.dataset.exportDisabled='true';});$('cancelExport').hidden=false;$('exportProgress').hidden=false;$('exportStatus').textContent='フォントと素材を準備中…';
- try{setupAudioGraph();if(audioCtx.state==='suspended')await audioCtx.resume();await document.fonts.ready;await document.fonts.load(`${S.style.fontWeight} ${S.style.fontSize}px ${S.style.font}`,S.lyrics.map(l=>l.text).join(''));await seekMedia(audio,0);if(S.bgType==='video')await seekMedia(bgVideo,0);if(exportCancelled){resetExportUI();return;}renderOnce();const stream=canvas.captureStream(FPS);exportingStream=new MediaStream([...stream.getVideoTracks(),...mediaDest.stream.getAudioTracks()]);chunks=[];recorder=new MediaRecorder(exportingStream,{mimeType:mime,videoBitsPerSecond:+$('exportBitrate').value,audioBitsPerSecond:256000});const actualMime=recorder.mimeType||mime;let ended=()=>{if(recorder.state==='recording')recorder.stop();};
+ try{setupAudioGraph();if(audioCtx.state==='suspended')await audioCtx.resume();await ensureStudioFonts(true);await seekMedia(audio,0);if(S.bgType==='video')await seekMedia(bgVideo,0);if(exportCancelled){resetExportUI();return;}renderOnce();const stream=canvas.captureStream(FPS);exportingStream=new MediaStream([...stream.getVideoTracks(),...mediaDest.stream.getAudioTracks()]);chunks=[];recorder=new MediaRecorder(exportingStream,{mimeType:mime,videoBitsPerSecond:+$('exportBitrate').value,audioBitsPerSecond:256000});const actualMime=recorder.mimeType||mime;let ended=()=>{if(recorder.state==='recording')recorder.stop();};
  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onerror=()=>{exportCancelled=true;$('exportStatus').textContent='録画に失敗しました。別のブラウザでお試しください。';if(recorder.state!=='inactive')recorder.stop();else resetExportUI();};
  recorder.onstop=()=>{audio.removeEventListener('ended',ended);audio.pause();bgVideo.pause();if(!exportCancelled){const ext=actualMime.includes('mp4')?'mp4':'webm';download(new Blob(chunks,{type:actualMime}),fileBase()+'.'+ext,actualMime);$('exportStatus').textContent=`書き出しました · 1920 × 1080 · ${ext.toUpperCase()}`;}else $('exportStatus').textContent='書き出しを中止しました';chunks=[];resetExportUI();};
  audio.addEventListener('ended',ended);recorder.start(200);await audio.play();$('recDot').classList.add('on');$('recordBtn').textContent='書き出し中…';$('exportStatus').textContent='録画中 · このタブを前面にしてください';recTimer=setInterval(()=>{$('recTime').textContent=fmt(audio.currentTime);$('exportProgress').value=audio.currentTime/audio.duration;},200);
@@ -832,15 +833,63 @@ async function exportVideo(){if(isRecording())return;if(!audio.src||!Number.isFi
 $('cancelExport').onclick=()=>{exportCancelled=true;if(recorder&&recorder.state==='recording')recorder.stop();else{$('exportStatus').textContent='中止処理中…';}};
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&isRecording()){exportCancelled=true;if(recorder&&recorder.state==='recording')recorder.stop();toast('タブが非表示になったため録画を中止しました');}});
 
+// v2.2: load the selected fonts and use the same stack in every renderer.
+const FONT_CATALOG=[
+ ['M PLUS 1','M PLUS 1｜すっきりした日本語','jp','400;700;900'],
+ ['Noto Serif JP','Noto Serif JP｜明朝','jp','400;700;900'],
+ ['Kaisei Decol','Kaisei Decol｜カイセイデコール','jp','400;500;700'],
+ ['Zen Old Mincho','Zen Old Mincho｜クラシックな明朝','jp','400;700;900'],
+ ['Shippori Mincho','しっぽり明朝｜繊細な明朝','jp','400;600;700;800'],
+ ['Klee One','Klee One｜ペンの手書き','jp','400;600'],
+ ['Yomogi','Yomogi｜ラフな手書き','jp','400'],
+ ['Reggae One','Reggae One｜鋭いディスプレイ体','jp','400'],
+ ['Jost','Jost｜幾何学的なサンセリフ','en','400;700;900'],
+ ['Josefin Slab','Josefin Slab｜端正なスラブセリフ','en','400;700'],
+ ['Special Elite','Special Elite｜かすれたタイプライター','en','400'],
+ ['Courier Prime','Courier Prime｜整ったタイプライター','en','400;700'],
+ ['Orbitron','Orbitron｜サイバーパンク','en','400;600;700;900'],
+ ['Bebas Neue','Bebas Neue｜縦長のタイトル','en','400'],
+ ['Zen Kaku Gothic New','Zen角ゴシック','jp','400;700;900'],
+ ['Noto Sans JP','Noto Sans JP','jp','400;700;900'],
+ ['M PLUS 1p','M PLUS 1p（旧版）','jp','400;700;800'],
+ ['Dela Gothic One','Dela Gothic One｜極太','jp','400']
+];
+const fontCSSPromises=new Map();let fontRequestID=0,fontRefreshTimer;
+function fontFamily(value){return (value||'').split(',')[0].replace(/['"]/g,'').trim();}
+function fontStack(){return (S.style.fontLatin?`'${S.style.fontLatin}',`:'')+S.style.font;}
+function loadFontCSS(name){const info=FONT_CATALOG.find(f=>f[0]===name);if(!info)return Promise.resolve();if(fontCSSPromises.has(name))return fontCSSPromises.get(name);
+ const promise=new Promise((resolve,reject)=>{const link=document.createElement('link');link.rel='stylesheet';link.href='https://fonts.googleapis.com/css2?family='+encodeURIComponent(name).replace(/%20/g,'+')+':wght@'+info[3]+'&display=swap';let done=false;const finish=(error)=>{if(done)return;done=true;clearTimeout(timer);if(error){link.remove();reject(error);}else resolve();};const timer=setTimeout(()=>finish(Error('フォントの取得がタイムアウトしました')),15000);link.onload=()=>finish();link.onerror=()=>finish(Error('フォントを取得できません'));document.head.append(link);});fontCSSPromises.set(name,promise);promise.catch(()=>fontCSSPromises.delete(name));return promise;}
+async function ensureStudioFonts(strict=false){const request=++fontRequestID,names=[...new Set([fontFamily(S.style.font),S.style.fontLatin].filter(Boolean))],weight=S.style.fontWeight,text=S.lyrics.map(l=>l.text).join('')||'夜の記憶 Midnight';const status=$('fontStatus');if(status)status.textContent='書体を読み込み中…';
+ try{await Promise.all(names.map(async name=>{await loadFontCSS(name);let timer;try{const loaded=await Promise.race([document.fonts.load(`${weight} 48px "${name}"`,text+' Aa'),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('書体の読み込みがタイムアウトしました')),15000);})]);if(!loaded.length)throw Error('書体が見つかりません');}finally{clearTimeout(timer);}}));if(request===fontRequestID){if(status)status.textContent='使用書体：'+names.join(' ＋ ');if($('fontSample'))$('fontSample').style.fontFamily=fontStack();renderOnce();}return true;
+ }catch(e){if(request===fontRequestID&&status)status.textContent='書体を取得できませんでした。通信を確認して「再読込」を押してください。';if(strict)throw e;return false;}}
+function refreshStudioFont(){clearTimeout(fontRefreshTimer);fontRefreshTimer=setTimeout(()=>ensureStudioFonts(),180);}
+function configureStudioFonts(){
+ const selector=$('fontSel'),old=[...selector.options];selector.innerHTML='';
+ for(const [groupName,lang] of [['日本語・基本書体','jp'],['英字を基本に使う（日本語は代替書体）','en']]){const group=document.createElement('optgroup');group.label=groupName;for(const f of FONT_CATALOG.filter(f=>f[2]===lang)){const prior=old.find(o=>fontFamily(o.value)===f[0]);group.append(new Option(f[1],prior?.value??`'${f[0]}',${/Mincho|Serif|Slab|Decol/.test(f[0])?'serif':'sans-serif'}`));}selector.append(group);}
+ selector.closest('.ctrl').querySelector('label').textContent='基本書体';
+ selector.closest('.ctrl').insertAdjacentHTML('afterend','<div class="ctrl"><label for="fontLatin">英字の書体</label><select id="fontLatin"><option value="">基本書体と同じ</option></select></div><div class="font-sample" id="fontSample">夜の記憶 / Midnight</div><div class="mini-tip" id="fontStatus" aria-live="polite"></div><button class="btn sm" id="retryFont" type="button">書体を再読込</button><p class="mini-tip">英字の書体はアルファベット・数字などに適用します。日本語は基本書体を使います。</p>');
+ for(const f of FONT_CATALOG.filter(f=>f[2]==='en'))$('fontLatin').add(new Option(f[1],f[0]));
+ $('fontLatin').onchange=()=>{S.style.fontLatin=$('fontLatin').value;refreshStudioFont();scheduleSave();};$('retryFont').onclick=()=>ensureStudioFonts();
+ for(const id of ['fontSel','fontWeight','lyricInput'])$(id).addEventListener('input',refreshStudioFont);
+ document.addEventListener('change',e=>{if(e.target.closest('.lyric-list'))refreshStudioFont();});
+ const set=(key,jp,en,weight)=>{const option=[...selector.options].find(o=>fontFamily(o.value)===jp);Object.assign(PRESETS[key].s,{font:option.value,fontLatin:en,fontWeight:weight});};
+ for(const p of Object.values(PRESETS))p.s.fontLatin='';
+ set('minimal','M PLUS 1','Jost','400');set('editorial','M PLUS 1','Jost','700');set('title','Zen Old Mincho','Josefin Slab','700');set('mono','Noto Serif JP','Josefin Slab','400');set('dream','Kaisei Decol','Josefin Slab','400');set('cyber','M PLUS 1','Orbitron','700');set('glitchcity','Reggae One','Orbitron','400');
+ Object.assign(PRESETS.editorial.s,{textColor:'#ffffff',bgColor:'#0c0d18',bgColor2:'#23182e'});PRESETS.editorial.sw='linear-gradient(135deg,#f1eef8,#a784ca)';
+ PRESETS.handwriting={label:'手書き',sw:'linear-gradient(135deg,#f2e9dd,#8292b4)',s:{...PRESETS.minimal.s,font:"'Klee One',sans-serif",fontLatin:'',fontWeight:'400',fontSize:78,animType:'charReveal',glow:0,spatial:0}};
+ PRESETS.typewriter={label:'タイプライター',sw:'linear-gradient(135deg,#e6dcc8,#6b6b70)',s:{...PRESETS.minimal.s,font:"'Noto Serif JP',serif",fontLatin:'Special Elite',fontWeight:'400',fontSize:70,animType:'type',glow:0,spatial:0}};
+}
+
 PRESETS.editorial={label:'エディトリアル',sw:'linear-gradient(120deg,#cfed75,#283524)',s:{...PRESETS.minimal.s,fontSize:112,fontWeight:'900',textColor:'#cfed75',bgColor:'#101417',bgColor2:'#28352b',animType:'burstIn',spatial:60}};
 PRESETS.title={label:'シネマ・タイトル',sw:'linear-gradient(120deg,#e9e3cc,#283347)',s:{...PRESETS.mono.s,fontSize:90,layout:'center',animType:'wireframe',scan:0,textColor:'#f1ead9',spatial:15}};
+configureStudioFonts();
 for(const p of Object.values(PRESETS)){p.s.outline??=0;p.s.spatial??=35;}
 buildPresets();applyPreset('editorial');syncExtras();renderLyricList();updateHistory();updateTapBtn();$('toast').classList.remove('show');$('recordBtn').innerHTML='動画を書き出す <span class="fmt-badge">'+(pickMime().includes('mp4')?'MP4':'WebM')+'</span>';
 try{const saved=localStorage.getItem('lyric-motion-desk-v2');if(saved){restoreSnapshot(JSON.stringify(validProject(JSON.parse(saved))));$('saveState').textContent='前回の編集を復元';}}catch(_){}
 if(!S.lyrics.length){$('exportStatus').textContent='素材 → 音楽を選ぶ → 歌詞を反映 → タイミング記録。素材タブでデモも試せます。';}
 
 // Mobile and desktop share the same project, renderer and controls.
-document.querySelector('.logo small').textContent='MOTION DESK · v2.1.0';
+document.querySelector('.logo small').textContent='MOTION DESK · v2.2.0';
 document.querySelector('.col.center').id='previewPanel';
 document.querySelector('.col.left').id='editPanel';
 document.querySelector('.col.right').id='stylePanel';
