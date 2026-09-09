@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lyric Video Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lyric Video Studio — v2.1.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -104,6 +104,101 @@
   .toast.show{display:block;animation:pop .2s}
   @keyframes pop{from{transform:translateX(-50%) translateY(10px);opacity:0}}
   @media(max-width:980px){.layout{grid-template-columns:1fr}.col{max-height:none}.col.left,.col.right{border:none;border-bottom:1px solid var(--line)}.col.center{order:-1}}
+/* Motion Desk workspace */
+:root{--bg:#101114;--panel:#191b20;--panel2:#22252c;--line:#363a43;--ink:#f1f2f5;--muted:#b2b7c2;--accent:#cfed75;--accent2:#cfed75;--ok:#cfed75}
+body{font-family:Inter,'Noto Sans JP',sans-serif;font-size:14px}
+button,input,select,textarea{font:inherit}button{color:inherit}button,label.filebtn{touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.topbar{min-height:76px;background:#17191d;padding:14px 24px;gap:20px;flex-wrap:wrap}
+.logo{background:none;color:var(--ink);font:800 16px Inter,sans-serif;letter-spacing:1px;border-left:5px solid var(--accent);padding-left:12px}
+.logo small{font:11px Inter,sans-serif;letter-spacing:3px;margin-top:5px}
+.project-name{width:190px!important;background:transparent!important;border-color:transparent!important;font-weight:600}
+.top-actions{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+.save-state{font-size:12px;color:var(--muted)}
+.layout{grid-template-columns:320px minmax(360px,1fr) 310px;min-height:calc(100vh - 76px)}
+.col{padding:20px;max-height:calc(100vh - 76px);scrollbar-width:thin;scrollbar-color:#444952 transparent}
+.col.center{padding:22px 28px;background:radial-gradient(ellipse at 50% 0,#252832 0,transparent 70%),var(--bg)}
+.stage-wrap,.transport,.center>div{max-width:1100px!important}.stage-wrap{margin-top:0}
+.canvas-frame{border-radius:8px;box-shadow:0 18px 55px #0005}
+.stage-header{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:12px;letter-spacing:1px;color:var(--muted)}
+.stage-header strong{color:var(--ink);font-size:14px;letter-spacing:0}
+.transport{border:0;background:transparent;padding:12px 0;margin-top:4px;gap:10px}
+.play-btn{width:48px;height:48px;border-radius:12px;background:var(--accent);color:#171a10}
+.btn{min-height:42px;border-radius:7px;font-size:14px;font-weight:500;padding:9px 12px;background:#252830;box-shadow:none}
+.btn:hover{background:#30353d;border-color:#71786a}.btn.sm{min-height:38px;font-size:13px}
+.btn.primary,.btn.cyan,.btn.rec{background:var(--accent);color:#15190c;border:1px solid var(--accent);font-weight:700}
+.tap-btn{background:#303927;border:1px solid #596a40;box-shadow:none;color:var(--accent);font-size:14px;padding:14px}
+.tap-fab{background:var(--accent);color:#15190c;box-shadow:0 8px 24px #0008;border-radius:12px;font-size:14px;bottom:18px}
+.tl-badge{background:var(--accent);color:#17210d}.tap-layer{background:#101114bd}
+h2.sec{font-size:12px;letter-spacing:1px;margin:24px 0 12px}h2.sec::before{height:10px;width:3px}
+label.lab,.ctrl label,.checkrow{font-size:14px}.hint-box,.mini-tip,.export-note,.tap-hint,.fname,.time{font-size:12px;line-height:1.8}
+.mini-tip{margin-left:0}.ctrl select{width:155px;font-size:13px}.ctrl input[type=range]{min-width:55px;width:100%;flex:1}.ctrl label{min-width:75px}.ctrl .val{font-size:12px}
+input[type=text],input[type=number],textarea,select{font-size:14px;border-radius:6px;min-height:38px}textarea{font-size:14px;line-height:1.9}
+input[type=range]{accent-color:var(--accent);min-height:28px}input[type=color]{min-height:36px!important}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:-5px 0 18px;padding-bottom:8px}.tabs button{flex:1;border:0;background:transparent;min-height:42px;border-radius:6px;color:var(--muted);cursor:pointer}.tabs button[aria-selected=true]{background:#30372a;color:var(--accent);font-weight:700}
+[hidden]{display:none!important}.preset{color:var(--ink);font:500 12px inherit;text-align:left;padding:9px;min-height:72px;background:#22252b}.preset.on{border-color:var(--accent);background:#2a3023}.preset .sw{height:18px;opacity:.8;border-radius:3px}.preset:hover{border-color:var(--accent)}
+.lyric-list{border:0;overflow:visible}.lrow{position:relative;border:1px solid var(--line);border-radius:7px;margin-bottom:8px;padding:10px;gap:8px;background:#21242a}
+.lrow.active{border-color:var(--accent);background:#292f23}.lrow.selected{box-shadow:inset 3px 0 var(--accent)}
+.lrow .txt{width:calc(100% - 48px);flex:auto;white-space:normal;cursor:text;border:none;background:transparent;padding:2px;min-width:0;min-height:32px;font-size:14px}
+.lrow .pat{flex:1;width:120px;min-height:36px;font-size:12px}.lrow .tm{width:77px;min-height:36px;font-size:12px}.lrow .idx{font-size:12px}.lrow .end-time{width:77px;font-size:12px;min-height:36px}
+.timeline-shell{width:100%;background:#1a1d22;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:6px 0 14px}
+.timeline-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;gap:8px;font-size:12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.timeline-scroll{overflow-x:auto;scrollbar-width:thin;position:relative}.timeline-content{position:relative;min-width:100%;height:154px;touch-action:pan-x}
+#waveform{display:block;width:100%;height:78px}.ruler{height:25px;border-bottom:1px solid var(--line);position:relative;color:var(--muted);font:11px monospace}.ruler span{position:absolute;top:6px;border-left:1px solid #747a86;padding-left:4px}
+.clip{position:absolute;top:89px;height:42px;border:1px solid #71814e;background:#303b24;color:#e2edc5;border-radius:5px;padding:5px 7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:grab;touch-action:none;font-size:12px;text-align:left;min-width:9px}
+.clip.selected{background:#cfed75;color:#17210d;border-color:#cfed75}.playhead{position:absolute;top:0;bottom:0;width:1px;background:#f4f4f6;pointer-events:none;z-index:3}.playhead:before{content:'';position:absolute;top:0;left:-4px;width:9px;height:8px;background:#f4f4f6}
+.empty-note{padding:12px 16px;color:var(--muted);font-size:12px}.timeline-footer{padding:8px 12px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+.export-box{width:100%;border-top:1px solid var(--line);padding-top:6px}.export-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.export-controls label{font-size:12px;color:var(--muted)}
+.export-controls select{margin-top:5px;width:100%}.export-progress{width:100%;accent-color:var(--accent);height:6px;margin:10px 0}
+.mode-label{display:flex;align-items:center;gap:9px;font-size:14px;margin-bottom:12px}.mode-label input{width:20px;height:20px;accent-color:var(--accent)}
+details{border-bottom:1px solid var(--line);padding:14px 0}summary{cursor:pointer;font-size:14px;font-weight:600;min-height:30px}details>.detail-body{padding-top:12px}
+.status-count{color:var(--muted);font-size:12px}.shortcut{font-size:12px;color:var(--muted);line-height:2}.mobile-nav{display:none}
+.safe-overlay{position:absolute;inset:8%;border:1px dashed #ffffff65;pointer-events:none}.safe-overlay:after{content:'SAFE AREA';position:absolute;bottom:5px;right:6px;font:10px monospace;color:#ffffff90}
+@media(min-width:1600px){.layout{grid-template-columns:360px minmax(0,1fr) 340px}.col{padding:24px}.col.center{padding:28px 40px}}
+@media(max-width:1150px){.layout{grid-template-columns:290px minmax(0,1fr)}.col.right{grid-column:1/-1;max-height:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;border-top:1px solid var(--line)}.col.right>h2{grid-column:1/-1}.col.right>.preset-grid{grid-column:1/-1;grid-template-columns:repeat(4,1fr)}.col.center{padding:20px}.col.left{max-height:none}}
+@media(max-width:760px){.topbar{position:relative;padding:14px;gap:12px}.logo{font-size:14px}.project-name{width:135px!important}.top-actions{margin-left:0;width:100%;gap:6px}.top-actions .btn{flex:1}.save-state{display:none}.layout{display:flex;flex-direction:column;min-height:0}.col{max-height:none;padding:16px!important}.col.center{order:0}.col.left{order:1}.col.right{order:2;display:block}.mobile-nav{display:flex;position:sticky;top:0;z-index:25;background:#181b20;border-bottom:1px solid var(--line);padding:6px 12px;gap:8px}.mobile-nav button{flex:1}.preset-grid{grid-template-columns:repeat(2,1fr)!important}.transport{gap:8px}.stage-header{margin-bottom:10px}.tap-fab{bottom:12px;padding:14px 22px}.col.right .ctrl input[type=range]{max-width:60%}.btn.sm{min-height:44px}input[type=text],input[type=number],textarea,select{font-size:16px}.lrow .tm,.lrow .pat{font-size:14px}.timeline-toolbar select{max-width:110px}.export-note{font-size:12px}}
+
+/* 2.1.0 — one feature set, touch and keyboard */
+:root{--bg:#090a12;--panel:#111323;--panel2:#1b1d32;--line:#30324e;--ink:#f4f3ff;--muted:#b3b4ce;--accent:#ff3e94;--accent2:#40d5ee;--ok:#6de4cf}
+html{scroll-padding-top:64px}body{background:var(--bg)}
+.topbar{background:linear-gradient(115deg,#161126,#101525);border-bottom-color:#37304d}
+.logo{font-family:'Orbitron',sans-serif;font-size:16px;border-left:0;padding-left:0;background:linear-gradient(100deg,#ff3e94,#bd89df,#40d5ee);color:transparent;background-clip:text;-webkit-background-clip:text}
+.logo small{font-family:inherit;font-size:11px;color:#b3b4ce;letter-spacing:1.3px}
+.col.center{background:radial-gradient(ellipse at 50% 0,#211834,transparent 75%),var(--bg)}
+.btn{background:#1c1d32;border-color:#373653}.btn:hover{background:#2a2440;border-color:#b876b8}
+.btn.primary,.btn.rec{background:linear-gradient(105deg,#df247b,#ff3e94);color:#fff;border-color:#ef388c}
+.btn.cyan{background:linear-gradient(110deg,#177fbb,#40d5ee);color:#061323}
+.play-btn{background:linear-gradient(135deg,#e44099,#32bfdc);color:white;border-radius:50%}
+.tap-btn{background:linear-gradient(105deg,#452040,#2b2456);border-color:#964978;color:#fff}
+.tap-fab{background:linear-gradient(105deg,#da297f,#8650d7);color:white}.tl-badge{background:#ea3289;color:white}
+.tabs button[aria-selected=true]{background:#352037;color:#ff8fbd}.preset{background:#1b1c31}.preset.on{background:#361c37;border-color:#ff3e94}
+.lrow{background:#181b2b}.lrow.active{background:#302038;border-color:#f654a2}.lrow.selected{box-shadow:inset 3px 0 #40d5ee}
+.timeline-shell{background:#101522}.clip{background:#252744;border-color:#686da1;color:#e7e7ff}.clip.selected{background:#403255;color:white;border-color:#ff66ad}
+.timeline-toolbar{background:#181929}.mobile-nav{background:#121425}
+.timeline-footer{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.nudge-controls{display:flex;gap:6px;flex-wrap:wrap}.nudge-controls button{min-height:44px;font-size:13px}.timeline-hint{flex-basis:100%}
+.result-card{width:100%;margin:12px 0;padding:14px;border:1px solid #5b4970;border-radius:10px;background:#1c172c}.result-card strong{display:block;margin-bottom:10px;word-break:break-word}.result-actions{display:flex;gap:8px;flex-wrap:wrap}.result-actions a{color:white;text-decoration:none}.result-card p{font-size:12px;color:var(--muted);margin-top:8px}
+.save-sheet{position:fixed;z-index:70;bottom:20px;right:20px;width:min(440px,calc(100% - 32px));max-height:65vh;overflow:auto;box-shadow:0 12px 50px #000a}
+.mobile-dock{display:none}.filebtn input[type=file]{width:100%;height:100%;font-size:16px}.build-tag{font-size:12px;color:#93e6f5;letter-spacing:.4px}
+.ctrl select{min-width:0;max-width:60%}.col{min-width:0}.export-box{scroll-margin-top:65px}
+@media(max-width:760px){
+ body{padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
+ .layout .col.left,.layout .col.center,.layout .col.right{display:block!important;overflow:visible;width:100%;scroll-margin-top:64px}
+ .layout .col.center{order:0;display:flex!important}.layout .col.left{order:1}.layout .col.right{order:2}
+ .mobile-nav{top:0;padding:7px 10px;gap:5px}.mobile-nav button{min-height:44px;padding:8px 5px;font-size:13px;border-radius:7px}
+ .topbar{gap:12px}.logo{font-size:15px}.top-actions{display:grid;grid-template-columns:1fr 44px 1fr 1fr}.project-name{flex:1;min-width:110px}.save-state{display:block;grid-column:1/-1;order:5;font-size:12px}
+ .mobile-dock{display:block;position:fixed;z-index:50;bottom:0;left:0;right:0;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:#141425f5;border-top:1px solid #4d3b63;box-shadow:0 -6px 28px #0005;backdrop-filter:blur(18px)}
+ .dock-meta{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#bec2db;font-size:12px;margin-bottom:5px}.dock-meta span{min-width:0;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.dock-meta button{min-height:30px;padding:3px 10px;font-size:12px;flex:none}
+ .dock-buttons{display:grid;grid-template-columns:44px 48px minmax(0,1fr);gap:8px}.dock-buttons button{min-height:44px}.dock-buttons .play-btn{height:44px;width:48px;border-radius:9px}.dock-buttons #dockTap{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:8px}
+ .dock-preview{width:min(100%,320px);margin:0 auto 8px}.dock-preview canvas{width:100%;aspect-ratio:16/9;display:block;border-radius:7px;border:1px solid #443c5e;max-height:180px}
+ .tap-fab{display:none!important}.tap-layer{pointer-events:none}.tl-tap{display:none}.canvas-frame .tl-next{font-size:clamp(18px,4vw,28px)}
+ .toast{bottom:calc(112px + env(safe-area-inset-bottom,0px));z-index:100}
+ .save-sheet{bottom:calc(106px + env(safe-area-inset-bottom,0px));right:16px}
+ .lrow .txt{font-size:16px}.lrow .pat{min-width:140px;max-width:100%;min-height:44px}.lrow .tm,.lrow .end-time{width:82px;min-height:44px;font-size:16px;padding:4px}
+ .ctrl select{width:60%;font-size:16px;min-height:44px}.ctrl input[type=range]{height:36px}.checkrow{min-height:44px}summary{min-height:44px;display:flex;align-items:center;gap:8px}summary:before{content:'＋';color:#ff78b1}details[open]>summary:before{content:'−'}
+ .timeline-content{touch-action:pan-x}.clip{min-height:44px}.timeline-footer .btn{padding:7px 9px}.stage-header{flex-wrap:wrap}.export-controls{grid-template-columns:1fr 1fr}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.toast,.tap-layer,.tap-fab{animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -172,7 +267,7 @@
     <div style="width:100%;max-width:720px;margin-top:14px">
       <h2 class="sec">書き出し</h2>
       <div class="row"><button class="btn rec wide" id="recordBtn">● 録画して書き出し<span class="fmt-badge" id="fmtBadge">MP4</span></button></div>
-      <div class="export-note" id="exportNote"><b style="color:var(--ink)">1920×1080 / 30fps固定 / 16Mbps</b> で書き出します。編集ソフト(Filmora・CapCut・Premiere)にそのまま読み込める設定です。<br>再生開始から曲の最後まで実時間で録画します。録画中はこのタブを前面にしておいてください。<br><b style="color:var(--ink)">合成する場合:</b> 右パネルの「グリーンバック」をONにして書き出し → 編集ソフトで緑を抜いて自分のMV映像に重ねられます。</div>
+      <div class="export-note" id="exportNote"><b style="color:var(--ink)">1920×1080 / 30fps目標 / 16Mbps</b> で書き出します。読み込み対応は編集ソフトとブラウザによって異なります。<br>再生開始から曲の最後まで実時間で録画します。録画中はこのタブを前面にしておいてください。<br><b style="color:var(--ink)">合成する場合:</b> 右パネルの「グリーンバック」をONにして書き出し → 編集ソフトで緑を抜いて自分のMV映像に重ねられます。</div>
     </div>
   </div>
 
@@ -312,8 +407,8 @@ function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>
 $('audioFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;try{if(audio.src)URL.revokeObjectURL(audio.src);}catch(_){}audio.src=URL.createObjectURL(f);$('audioName').textContent=f.name;audio.load();});
 audio.addEventListener('canplay',()=>{if(audio.src)toast('音楽を読み込みました');});
 audio.addEventListener('error',()=>{if(audio.src)toast('この音声ファイルは再生できませんでした（別のmp3をお試しください）');});
-$('bgFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);const name=(f.name||'').toLowerCase();const isVideo=f.type.startsWith('video')||/\.(mp4|mov|webm|m4v|avi)$/.test(name);if(isVideo){bgVideo.src=url;bgVideo.load();bgVideo.play().catch(()=>{});S.bgType='video';}else{bgImage.src=url;S.bgType='image';}$('bgName').textContent=f.name;toast('背景を読み込みました');});
-$('clearBg').addEventListener('click',()=>{S.bgType='none';bgVideo.pause();bgVideo.removeAttribute('src');bgImage.removeAttribute('src');$('bgName').textContent='';toast('背景をクリアしました');});
+$('bgFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(bgVideo.src)URL.revokeObjectURL(bgVideo.src);if(bgImage.src)URL.revokeObjectURL(bgImage.src);bgVideo.pause();const url=URL.createObjectURL(f);const name=(f.name||'').toLowerCase();const isVideo=f.type.startsWith('video')||/\.(mp4|mov|webm|m4v|avi)$/.test(name);if(isVideo){bgVideo.src=url;bgVideo.load();if(!audio.paused)bgVideo.play().catch(()=>{});S.bgType='video';}else{bgImage.src=url;S.bgType='image';}$('bgName').textContent=f.name;toast('背景を読み込みました');});
+$('clearBg').addEventListener('click',()=>{S.bgType='none';if(bgVideo.src)URL.revokeObjectURL(bgVideo.src);if(bgImage.src)URL.revokeObjectURL(bgImage.src);bgVideo.pause();bgVideo.removeAttribute('src');bgImage.removeAttribute('src');$('bgName').textContent='';toast('背景をクリアしました');});
 
 // ---------- lyrics ----------
 $('loadLyrics').addEventListener('click',()=>{
@@ -340,7 +435,7 @@ function renderLyricList(){
     row.appendChild(pat);
     const tm=document.createElement('input');tm.className='tm'+(ly.time==null?' unset':'');
     tm.value=ly.time!=null?ly.time.toFixed(2):'--';tm.title='秒数を直接編集';
-    tm.addEventListener('change',()=>{const v=parseFloat(tm.value);S.lyrics[i].time=isNaN(v)?null:Math.max(0,v);renderLyricList();});
+    tm.type='number';tm.step='0.01';tm.min='0';tm.setAttribute('aria-label',`歌詞${i+1}の開始秒`);tm.addEventListener('change',()=>{setLyricTime(i,tm.value===''?null:Number(tm.value));renderLyricList();});
     row.appendChild(tm);
     box.appendChild(row);
   });
@@ -349,7 +444,7 @@ function renderLyricList(){
 // ---------- tap ----------
 function updateTapBtn(){
   const btn=$('tapBtn'),hint=$('tapHint');
-  const active = S.lyrics.length>0 && !audio.paused && S.tapIndex<S.lyrics.length;
+  const active = timingMode && !isRecording() && S.lyrics.length>0 && !audio.paused && S.tapIndex<S.lyrics.length;
   $('tapLayer').classList.toggle('show',active);
   $('tapFab').classList.toggle('show',active);
   if(active){
@@ -365,13 +460,13 @@ function updateTapBtn(){
   hint.textContent='次: 「'+S.lyrics[S.tapIndex].text+'」';
 }
 function doTap(){
-  if(audio.paused||S.tapIndex>=S.lyrics.length||!S.lyrics.length)return;
+  if(!timingMode||isRecording()||audio.paused||S.tapIndex>=S.lyrics.length||!S.lyrics.length)return;
   S.lyrics[S.tapIndex].time=audio.currentTime;S.tapIndex++;renderLyricList();updateTapBtn();
 }
 $('tapBtn').addEventListener('click',doTap);
 $('tapLayer').addEventListener('click',doTap);
 $('tapFab').addEventListener('click',e=>{e.stopPropagation();doTap();});
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){e.preventDefault();if(!audio.paused)doTap();}});
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&document.activeElement.tagName!=='TEXTAREA'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='SELECT'){e.preventDefault();if(isRecording())return;if(timingMode&&!audio.paused)doTap();else togglePlay();}});
 $('resetTiming').addEventListener('click',()=>{S.lyrics.forEach(l=>l.time=null);S.tapIndex=0;renderLyricList();updateTapBtn();toast('記録をリセットしました');});
 $('backOne').addEventListener('click',()=>{if(S.tapIndex>0){S.tapIndex--;S.lyrics[S.tapIndex].time=null;renderLyricList();updateTapBtn();}});
 
@@ -386,7 +481,7 @@ function cueStart(){
   audio.currentTime=0;syncBgVideo();
   $('seek').value=0;$('curTime').textContent='0:00';
 }
-$('playBtn').addEventListener('click',()=>{if(audio.paused)audio.play();else audio.pause();});
+$('playBtn').addEventListener('click',togglePlay);
 $('cueBtn').addEventListener('click',cueStart);
 audio.addEventListener('play',()=>{$('playBtn').textContent='⏸';if(S.bgType==='video')bgVideo.play().catch(()=>{});updateTapBtn();});
 audio.addEventListener('pause',()=>{$('playBtn').textContent='▶';if(S.bgType==='video')bgVideo.pause();updateTapBtn();});
@@ -404,7 +499,7 @@ audio.addEventListener('timeupdate',()=>{$('curTime').textContent=fmt(audio.curr
 function buildPresets(){
   const grid=$('presetGrid');
   Object.entries(PRESETS).forEach(([key,p])=>{
-    const el=document.createElement('div');el.className='preset'+(key===S.style.preset?' on':'');el.dataset.key=key;
+    const el=document.createElement('button');el.type='button';el.className='preset'+(key===S.style.preset?' on':'');el.dataset.key=key;
     el.innerHTML='<div class="sw" style="background:'+p.sw+'"></div>'+p.label;
     el.addEventListener('click',()=>applyPreset(key));grid.appendChild(el);
   });
@@ -435,8 +530,8 @@ $('mixPatterns').addEventListener('change',()=>S.style.mix=$('mixPatterns').chec
 // ---------- render helpers ----------
 function scatterPos(i){const rx=((Math.sin(i*12.9898)*43758.5453)%1+1)%1;const ry=((Math.sin(i*78.233)*12543.123)%1+1)%1;return{x:0.2+rx*0.6,y:0.25+ry*0.5};}
 function setFont(size){ctx.font=S.style.fontWeight+' '+size+'px '+S.style.font;}
-function homePos(idx){const st=S.style;if(st.layout==='scatter'){const sp=scatterPos(idx);return[W*sp.x,H*sp.y];}if(st.layout==='lower')return[W/2,H*0.8];return[W/2,H/2];}
-function txt(text,x,y,color,alpha,glow){ctx.globalAlpha=clamp01(alpha);if(glow){ctx.shadowColor=color;ctx.shadowBlur=glow;}else{ctx.shadowBlur=0;}ctx.fillStyle=color;ctx.fillText(text,x,y);}
+function homePos(idx){const st=S.style;if(st.layout==='scatter'){const sp=scatterPos(idx);const half=Math.min(W*.44,ctx.measureText(S.lyrics[idx]?.text||'').width/2);return[Math.max(half+W*.06,Math.min(W-half-W*.06,W*sp.x)),H*sp.y];}if(st.layout==='lower')return[W/2,H*0.8];return[W/2,H/2];}
+function txt(text,x,y,color,alpha,glow){ctx.globalAlpha=clamp01(alpha);if(glow){ctx.shadowColor=color;ctx.shadowBlur=glow;}else{ctx.shadowBlur=0;}ctx.fillStyle=color;if(S.style.outline){ctx.lineWidth=S.style.outline*SC;ctx.lineJoin='round';ctx.strokeStyle='#08090d';ctx.strokeText(text,x,y);}ctx.fillText(text,x,y);}
 function renderTextTile(text,size,weight,font,color){
   tctx.font=weight+' '+size+'px '+font;const m=tctx.measureText(text);
   const w=Math.max(4,Math.ceil(m.width)+40),h=Math.ceil(size*1.7);
@@ -450,7 +545,7 @@ function activeLyric(t){
   if(idx<0)return null;
   const ly=S.lyrics[idx];let nextT=null;
   for(let j=idx+1;j<S.lyrics.length;j++){if(S.lyrics[j].time!=null){nextT=S.lyrics[j].time;break;}}
-  const end=nextT!=null?nextT:ly.time+4;if(t>end)return null;
+  const end=ly.end!=null?Math.min(ly.end,nextT??Infinity):(nextT!=null?nextT:Math.min(ly.time+4,audio.duration||Infinity));if(t>end)return null;
   const pattern=ly.pattern||(S.style.mix?MIXSET[Math.floor(rnd(idx*3+1)*MIXSET.length)]:S.style.animType);
   return{ly,idx,appear:t-ly.time,remain:end-t,total:end-ly.time,pattern};
 }
@@ -473,9 +568,9 @@ function drawCover(media){
 function drawLine(info){
   const st=S.style,t=audio.currentTime;
   const {ly,idx,appear,remain,total,pattern}=info;
-  const size=st.fontSize*SC, glow=st.glow*SC, color=st.textColor, text=ly.text;
+  let size=st.fontSize*SC;setFont(size);size*=Math.min(1,(W*0.78)/Math.max(1,ctx.measureText(ly.text).width));const glow=st.glow*SC, color=st.textColor, text=ly.text;
   setFont(size);ctx.textAlign='center';ctx.textBaseline='middle';
-  const [hx,hy]=homePos(idx);
+  const [hx,hy]=homePos(idx);const IN=Math.min(0.45,total*0.24),OUT=Math.min(0.40,total*0.22);
 
   switch(pattern){
 
@@ -509,7 +604,7 @@ function drawLine(info){
     let e=1;if(appear<IN)e=easeOut(appear/IN);else if(remain<OUT)e=easeOut(remain/OUT);
     const d=1-e;ctx.globalCompositeOperation='lighter';
     txt(text,hx-d*0.45*W,hy,'#ff0033',0.9,0);
-    txt(text,hx,hy-d*0.4*H,'#00ff66',0.9,0);
+    txt(text,hx,hy-d*0.4*H,st.chroma?'#ff66cc':'#00ff66',0.9,0);
     txt(text,hx+d*0.45*W,hy,'#0066ff',0.9,0);
     ctx.globalCompositeOperation='source-over';
     if(e>0.85)txt(text,hx,hy,color,(e-0.85)/0.15,glow);break;}
@@ -539,7 +634,7 @@ function drawLine(info){
     let a=e;if(remain<OUT)a=remain/OUT;txt(text,hx,hy,color,a,glow);break;}
 
   case 'bsod':{
-    if(appear<0.12){const ph=1-appear/0.12;
+    if(appear<0.12&&!st.chroma){const ph=1-appear/0.12;
       ctx.globalAlpha=0.7*ph;ctx.fillStyle='#1030ff';ctx.fillRect(0,0,W,H);
       ctx.globalAlpha=0.5*ph;ctx.fillStyle='#ffffff';
       for(let y=0;y<H;y+=6){if(rnd(y+Math.floor(appear*200))>0.7)ctx.fillRect(0,y,W,2);}ctx.globalAlpha=1;}
@@ -561,7 +656,7 @@ function drawLine(info){
   case 'charReveal':{
     const chars=[...text];const ws=chars.map(c=>ctx.measureText(c).width);
     const twdt=ws.reduce((a,b)=>a+b,0);const x0=hx-twdt/2;
-    const iv=Math.min(0.09,Math.max(0.04,(total*0.5)/Math.max(chars.length,1)));
+    const iv=Math.min(0.09,(total*0.55)/Math.max(chars.length,1));
     const n=Math.floor(appear/iv)+1;let accum=0;
     for(let c=0;c<chars.length;c++){const cwid=ws[c];const cx2=x0+accum+cwid/2;accum+=cwid;if(c>=n)continue;
       const jit=Math.sin(t*18+c*1.7)*2*SC;const blink=0.85+0.15*Math.sin(t*24+c*3);
@@ -574,42 +669,42 @@ function drawLine(info){
     let dy=0,sc=1,text2=text;
     if(pattern==='rise')dy=(1-e)*60*SC;
     else if(pattern==='scale')sc=0.6+e*0.4;
-    else if(pattern==='type'){const nn=Math.floor(text.length*clamp01(appear/(total*0.5)));text2=text.slice(0,Math.max(1,nn));a=(remain<OUT?remain/OUT:1);}
+    else if(pattern==='type'){const chars=[...text];const nn=Math.floor(chars.length*clamp01(appear/(total*0.5)));text2=chars.slice(0,Math.max(1,nn)).join('');a=(remain<OUT?remain/OUT:1);}
     ctx.save();ctx.translate(hx,hy+dy);ctx.scale(sc,sc);
     if(glow){ctx.shadowColor=color;ctx.shadowBlur=glow;}
-    ctx.globalAlpha=a;ctx.fillStyle=color;ctx.fillText(text2,0,0);ctx.restore();}
+    txt(text2,0,0,color,a,glow);ctx.restore();}
   }
   ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
 }
 
 function applyGlitch(){
+  let seed=Math.floor(audio.currentTime*30)*71;const random=()=>rnd(seed++);
   const g=S.style.glitch/100;if(g<=0)return;
-  if(Math.random()<g*0.6){const n=2+Math.floor(g*5);
-    for(let k=0;k<n;k++){const sy=Math.random()*H,sh=4+Math.random()*30*g,shift=(Math.random()*2-1)*W*0.06*g;
+  if(random()<g*0.6){const n=2+Math.floor(g*5);
+    for(let k=0;k<n;k++){const sy=random()*H,sh=4+random()*30*g,shift=(random()*2-1)*W*0.06*g;
       ctx.drawImage(canvas,0,sy,W,sh,shift,sy,W,sh);}}
 }
 function drawScanlines(){const st=S.style;if(st.scan<=0)return;const a=(st.scan/100)*0.25;
   ctx.save();ctx.globalAlpha=a;ctx.fillStyle='#000';for(let y=0;y<H;y+=4)ctx.fillRect(0,y,W,2);ctx.restore();}
 
-const FPS=30, FRAME_MS=1000/FPS;
+let FPS=30, FRAME_MS=1000/FPS;
 let capTrack=null, lastDraw=0;
 
 function renderOnce(){
   const t=audio.currentTime;
   drawBackground();
   const info=activeLyric(t);
-  if(info)drawLine(info);
+  if(info){drawSpatialFX(info);drawLine(info);}
   ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
-  applyGlitch();
-  drawScanlines();
+  if(!S.style.chroma){applyGlitch();drawScanlines();}
 }
 
 function frame(now){
   requestAnimationFrame(frame);
   if(now-lastDraw < FRAME_MS-1) return;   // 30fpsに間引き（間隔を均一化）
-  lastDraw = now;
+  lastDraw = now-((now-lastDraw)%FRAME_MS);
   renderOnce();
-  // 録画中は1コマずつ明示的に確定させ、可変フレームレートを防ぐ
+  // フレーム送信。MediaRecorderは固定フレームレートを保証しない。
   if(capTrack && capTrack.requestFrame) capTrack.requestFrame();
 }
 requestAnimationFrame(frame);
@@ -620,46 +715,171 @@ function pickMime(){const cands=['video/mp4;codecs=avc1','video/mp4','video/webm
 (function(){const m=pickMime();$('fmtBadge').textContent=m.includes('mp4')?'MP4':'WebM';})();
 function setupAudioGraph(){if(audioCtx)return;audioCtx=new (window.AudioContext||window.webkitAudioContext)();srcNode=audioCtx.createMediaElementSource(audio);mediaDest=audioCtx.createMediaStreamDestination();srcNode.connect(audioCtx.destination);srcNode.connect(mediaDest);}
 
-$('recordBtn').addEventListener('click',async()=>{
-  if(recorder&&recorder.state==='recording'){recorder.stop();return;}
-  if(!audio.src){toast('先に音楽を読み込んでください');return;}
-  const mime=pickMime();if(!mime){toast('この環境は録画に対応していません');return;}
-  try{setupAudioGraph();if(audioCtx.state==='suspended')await audioCtx.resume();}catch(err){toast('音声の初期化に失敗しました');return;}
-  const aTracks=mediaDest.stream.getAudioTracks();
-  let mixed, vStream;
-  const probe=canvas.captureStream(0);
-  const pTrack=probe.getVideoTracks()[0];
-  if(pTrack&&typeof pTrack.requestFrame==='function'){
-    capTrack=pTrack;
-    mixed=new MediaStream([pTrack,...aTracks]);
-  }else{
-    probe.getVideoTracks().forEach(t=>t.stop());
-    capTrack=null;
-    vStream=canvas.captureStream(FPS);
-    mixed=new MediaStream([...vStream.getVideoTracks(),...aTracks]);
-  }
-  chunks=[];
-  try{recorder=new MediaRecorder(mixed,{mimeType:mime,videoBitsPerSecond:16000000,audioBitsPerSecond:192000});}catch(err){recorder=new MediaRecorder(mixed);}
-  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
-  recorder.onstop=()=>{
-    capTrack=null;
-    const blob=new Blob(chunks,{type:mime.split(';')[0]});const ext=mime.includes('mp4')?'mp4':'webm';
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lyric-video.'+ext;a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),4000);
-    $('recDot').classList.remove('on');$('recordBtn').innerHTML='● 録画して書き出し<span class="fmt-badge">'+(ext==='mp4'?'MP4':'WebM')+'</span>';
-    clearInterval(recTimer);toast('書き出し完了！ '+ext.toUpperCase()+' をダウンロードしました');
-  };
-  audio.currentTime=0;if(S.bgType==='video'){bgVideo.currentTime=0;bgVideo.play().catch(()=>{});}
-  await audio.play();recorder.start(200);recStartT=Date.now();
-  $('recDot').classList.add('on');$('recordBtn').textContent='■ 録画を停止';
-  recTimer=setInterval(()=>{$('recTime').textContent=fmt((Date.now()-recStartT)/1000);},500);
-  toast('録画開始 — 曲の最後で自動停止します');
-  const onEnd=()=>{if(recorder&&recorder.state==='recording')recorder.stop();audio.removeEventListener('ended',onEnd);};
-  audio.addEventListener('ended',onEnd);
-});
+$('recordBtn').addEventListener('click',exportVideo);
 
 // ---------- init ----------
-buildPresets();applyPreset('cyber');renderLyricList();
+// Initialization follows the workspace extension.
+// ---------- Motion Desk ----------
+let timingMode=false, selectedLine=0, zoom=1, wavePeaks=[], undoStack=[], redoStack=[], pendingHistory=null;
+let exportBusy=false, exportCancelled=false, exportingStream=null, autoSaveTimer;
+S.style.outline=0;S.style.spatial=35;
+const defaultStyle={...S.style};
+const isRecording=()=>exportBusy;
+function togglePlay(){if(isRecording())return;if(!audio.src){toast('音楽を選ぶか、デモを試してください');return;}if(audio.paused)audio.play().catch(()=>toast('音声を再生できませんでした'));else audio.pause();}
+function duration(){return Number.isFinite(audio.duration)&&audio.duration>0?audio.duration:Math.max(12,...S.lyrics.map(l=>(l.end??l.time??0)+4));}
+function snapshot(){return JSON.stringify({version:2,name:$('projectName').value,lyrics:S.lyrics,style:S.style,tapIndex:S.tapIndex});}
+function checkpoint(){const v=snapshot();if(undoStack.at(-1)!==v){undoStack.push(v);if(undoStack.length>80)undoStack.shift();}redoStack=[];updateHistory();}
+function updateHistory(){$('undo').disabled=!undoStack.length;$('redo').disabled=!redoStack.length;}
+function restoreSnapshot(v){const p=JSON.parse(v);S.lyrics=p.lyrics;S.style={...defaultStyle,...p.style};S.tapIndex=p.tapIndex??S.lyrics.filter(l=>l.time!=null).length;$('projectName').value=p.name||'Untitled session';$('lyricInput').value=S.lyrics.map(l=>l.text).join('\n');syncControls();syncExtras();renderLyricList();updateTapBtn();scheduleSave();}
+function undo(){if(isRecording()||!undoStack.length)return;redoStack.push(snapshot());restoreSnapshot(undoStack.pop());updateHistory();}
+function redo(){if(isRecording()||!redoStack.length)return;undoStack.push(snapshot());restoreSnapshot(redoStack.pop());updateHistory();}
+function scheduleSave(){clearTimeout(autoSaveTimer);$('saveState').textContent='保存中…';autoSaveTimer=setTimeout(()=>{try{localStorage.setItem('lyric-motion-desk-v2',snapshot());$('saveState').textContent='この端末に保存済み';}catch(_){$('saveState').textContent='保存ボタンでバックアップ';}},500);}
+function setLyricTime(i,v){const prev=S.lyrics.slice(0,i).filter(l=>l.time!=null).at(-1)?.time??-0.01;const next=S.lyrics.slice(i+1).find(l=>l.time!=null)?.time??Infinity;
+ if(v!==null&&(!Number.isFinite(v)||v<0||v<=prev||v>=next||(Number.isFinite(audio.duration)&&v>=audio.duration))){toast('開始時間は歌唱順に、前後の行の間で指定してください');return false;}S.lyrics[i].time=v;if(S.lyrics[i].end!=null&&S.lyrics[i].end<=v)delete S.lyrics[i].end;return true;}
+function download(data,name,type){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+function fileBase(){return ($('projectName').value||'lyric-video').replace(/[\\/:*?"<>|]/g,'-');}
+
+// Reorganize existing controls into a focused workspace.
+document.querySelector('.logo').innerHTML='LYRIC VIDEO STUDIO<small>MOTION DESK / 02</small>';
+document.querySelector('.topbar').insertAdjacentHTML('beforeend',`<input id="projectName" class="project-name" aria-label="プロジェクト名" value="Untitled session"><div class="top-actions"><span id="saveState" class="save-state">ローカル編集</span><button class="btn sm" id="undo" title="取り消す Ctrl / ⌘ Z">↶ 戻す</button><button class="btn sm" id="redo" title="やり直す Ctrl / ⌘ Shift Z">↷</button><label class="btn sm filebtn">開く<input id="projectFile" type="file" accept=".json,application/json" aria-label="プロジェクトを開く"></label><button class="btn sm primary" id="saveProject">保存</button></div>`);
+const mobile=document.createElement('nav');mobile.className='mobile-nav';mobile.setAttribute('aria-label','作業画面');mobile.innerHTML='<button class="btn sm" data-view="preview">プレビュー</button><button class="btn sm" data-view="lyrics">歌詞・素材</button><button class="btn sm" data-view="style">スタイル</button>';document.querySelector('.layout').before(mobile);document.querySelector('.layout').dataset.mobile='preview';
+mobile.onclick=e=>{if(e.target.dataset.view)document.querySelector('.layout').dataset.mobile=e.target.dataset.view;};
+const left=document.querySelector('.col.left'),leftChildren=[...left.children];const mediaPanel=document.createElement('section'),lyricPanel=document.createElement('section');mediaPanel.id='mediaPanel';lyricPanel.id='lyricPanel';mediaPanel.hidden=true;
+leftChildren.slice(0,3).forEach(el=>mediaPanel.append(el));leftChildren.slice(3).forEach(el=>lyricPanel.append(el));
+left.innerHTML='<div class="tabs" role="tablist" aria-label="編集内容"><button role="tab" aria-selected="true" aria-controls="lyricPanel" id="lyricsTab">歌詞・同期</button><button role="tab" aria-selected="false" aria-controls="mediaPanel" id="mediaTab">素材</button></div>';left.append(lyricPanel,mediaPanel);
+for(const [id,show] of [['lyricsTab',true],['mediaTab',false]])$(id).onclick=()=>{lyricPanel.hidden=!show;mediaPanel.hidden=show;$('lyricsTab').setAttribute('aria-selected',show);$('mediaTab').setAttribute('aria-selected',!show);};
+mediaPanel.insertAdjacentHTML('beforeend','<div class="divider"></div><button id="demo" class="btn wide">12秒のデモを試す</button><p class="mini-tip" style="margin-top:10px">デモ歌詞とガイド音で動きを確認できます。素材は端末内で処理されます。</p><h2 class="sec">字幕ファイル</h2><label class="btn wide filebtn">LRC / SRT を読み込む<input type="file" id="subtitleFile" accept=".lrc,.srt,text/plain" aria-label="字幕ファイルを選ぶ"></label><button class="btn wide" id="saveSrt" style="margin-top:8px">SRTで保存</button>');
+$('audioFile').accept='audio/*';$('audioFile').setAttribute('aria-label','音楽ファイルを選ぶ');$('bgFile').accept='video/*,image/*';$('bgFile').setAttribute('aria-label','背景ファイルを選ぶ');
+$('tapBtn').before(Object.assign(document.createElement('div'),{innerHTML:'<label class="mode-label"><input type="checkbox" id="timingMode">タップでタイミングを記録</label>'}));
+document.querySelector('.hint-box').innerHTML='記録モードで再生し、歌詞の開始に合わせて <span class="kbd">Space</span> またはマークを押します。通常は Space で再生・停止。';
+$('timingMode').onchange=()=>{timingMode=$('timingMode').checked;updateTapBtn();};
+$('loadLyrics').textContent='歌詞を反映';
+$('lyricInput').setAttribute('aria-label','歌詞を1行ずつ入力');
+$('lyricList').before(Object.assign(document.createElement('div'),{className:'status-count',id:'lyricCount'}));
+document.querySelector('.stage-wrap').insertAdjacentHTML('beforebegin','<div class="stage-header"><strong>プレビュー</strong><span>1920 × 1080 / 16:9</span><label><input type="checkbox" id="safeArea"> 安全枠</label></div>');
+document.querySelector('.canvas-frame').insertAdjacentHTML('beforeend','<div class="safe-overlay" id="safeOverlay" hidden></div>');$('safeArea').onchange=()=>{$('safeOverlay').hidden=!$('safeArea').checked;};
+$('playBtn').setAttribute('aria-label','再生・一時停止');$('cueBtn').setAttribute('aria-label','先頭に戻る');$('seek').setAttribute('aria-label','再生位置');
+document.querySelector('.transport').insertAdjacentHTML('afterend',`<section class="timeline-shell"><div class="timeline-toolbar"><strong>タイムライン</strong><span id="selectionLabel">歌詞を選択して調整</span><select id="timelineZoom" aria-label="タイムラインの拡大率"><option value="1">全体</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select></div><div class="timeline-scroll" id="timelineScroll"><div class="timeline-content" id="timelineContent"><div class="ruler" id="ruler"></div><canvas id="waveform" height="100"></canvas><div id="clips"></div><div class="playhead" id="playhead"></div></div></div><div class="timeline-footer">歌詞をドラッグして開始位置を調整 · ← → で選択行を0.05秒移動</div></section>`);
+const exportBox=$('recordBtn').closest('div').parentElement;exportBox.classList.add('export-box');
+$('recordBtn').parentElement.insertAdjacentHTML('beforebegin','<div class="export-controls"><label>フレームレート<select id="exportFps"><option value="30">30 fps</option><option value="60">60 fps</option></select></label><label>映像ビットレート<select id="exportBitrate"><option value="16000000">16 Mbps</option><option value="24000000" selected>24 Mbps</option><option value="40000000">40 Mbps</option></select></label></div>');
+$('exportNote').innerHTML='フルHD・音声付きで実時間録画します。MP4対応環境ではMP4、その他はWebM。端末の処理速度によってフレーム落ちや可変フレームレートが発生します。録画中はこのタブを前面にしてください。';
+$('recordBtn').insertAdjacentHTML('afterend','<button class="btn" id="cancelExport" hidden style="margin-left:8px">中止</button>');$('exportNote').insertAdjacentHTML('beforebegin','<progress class="export-progress" id="exportProgress" max="1" value="0" hidden></progress><div id="exportStatus" class="mini-tip" aria-live="polite"></div>');
+const right=document.querySelector('.col.right');let section=null;
+for(const el of [...right.children]){if(el.classList.contains('divider')){el.remove();continue;}if(el.matches('h2')&&!el.textContent.includes('プリセット')){const detail=document.createElement('details');detail.open=el.textContent==='文字';detail.innerHTML='<summary></summary><div class="detail-body"></div>';detail.querySelector('summary').textContent=el.textContent;right.insertBefore(detail,el);section=detail.lastElementChild;el.remove();}else if(section)section.append(el);}
+const textSection=$('fontSel').closest('.detail-body');textSection.insertAdjacentHTML('beforeend','<div class="ctrl"><label for="outline">縁取り</label><input id="outline" type="range" min="0" max="12" value="0"><span class="val" id="outlineV">0</span></div><label class="btn sm wide filebtn">フォントを追加<input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" aria-label="フォントを追加"></label><p class="mini-tip">長い行は画面内に収まるサイズへ自動調整します。</p>');
+$('animType').closest('.detail-body').insertAdjacentHTML('beforeend','<div class="ctrl"><label for="spatial">空間エフェクト</label><input id="spatial" type="range" min="0" max="100" value="35"><span class="val" id="spatialV">35</span></div><p class="mini-tip">登場・退場に合わせて光跡を展開。クロマキー時は全画面フィルターを止め、単色の背景を保ちます。</p>');
+bind('outline','outline',true,'outlineV');bind('spatial','spatial',true,'spatialV');
+function syncExtras(){for(const k of ['outline','spatial']){$(k).value=S.style[k]??0;$(k+'V').textContent=S.style[k]??0;}document.querySelectorAll('.preset').forEach(e=>e.classList.toggle('on',e.dataset.key===S.style.preset));}
+$('toast').setAttribute('role','status');
+document.querySelectorAll('.ctrl').forEach(el=>{const label=el.querySelector('label'),input=el.querySelector('input,select');if(label&&input)label.htmlFor=input.id;});
+
+// Editable lyric rows preserve singing order.
+audio.addEventListener('loadedmetadata',()=>{if(S.bgType==='video')syncBgVideo();});
+const originalRenderList=renderLyricList;
+renderLyricList=function(){originalRenderList();document.querySelectorAll('.lrow').forEach((row,i)=>{row.classList.toggle('selected',i===selectedLine);const old=row.querySelector('.txt'),input=document.createElement('input');input.type='text';input.className='txt';input.value=S.lyrics[i].text;input.setAttribute('aria-label',`歌詞 ${i+1}`);input.onchange=()=>{S.lyrics[i].text=input.value.trim()||S.lyrics[i].text;input.value=S.lyrics[i].text;$('lyricInput').value=S.lyrics.map(l=>l.text).join('\n');renderTimeline();};old.replaceWith(input);row.querySelector('.pat').setAttribute('aria-label',`歌詞${i+1}のモーション`);
+ const end=document.createElement('input');end.type='number';end.step='0.01';end.min='0';end.className='end-time';end.placeholder='終了 秒';end.value=S.lyrics[i].end??'';end.setAttribute('aria-label',`歌詞${i+1}の終了秒`);end.onchange=()=>{const v=end.value===''?null:Number(end.value),l=S.lyrics[i];if(v!==null&&(!Number.isFinite(v)||l.time==null||v<=l.time)){toast('終了は開始より後の秒数を入力してください');end.value=l.end??'';return;}if(v===null)delete l.end;else l.end=v;renderTimeline();};row.append(end);
+ row.addEventListener('pointerdown',()=>{selectedLine=i;document.querySelectorAll('.lrow').forEach((r,j)=>r.classList.toggle('selected',i===j));renderTimeline();});});$('lyricCount').textContent=`${S.lyrics.length} 行 / ${S.lyrics.filter(l=>l.time!=null).length} 行を同期済み`;renderTimeline();};
+const originalUpdateTap=updateTapBtn;updateTapBtn=function(){originalUpdateTap();if(!timingMode){$('tapBtn').disabled=true;$('tapBtn').textContent='記録モードはOFF';$('tapHint').textContent='通常プレビュー · Spaceで再生／停止';}};
+function renderTimeline(){const d=duration(),content=$('timelineContent');content.style.width=(zoom*100)+'%';$('clips').innerHTML='';$('ruler').innerHTML='';for(let i=0;i<=10*zoom;i++){const span=document.createElement('span');span.style.left=(i/(10*zoom)*100)+'%';span.textContent=fmt(i*d/(10*zoom));$('ruler').append(span);}
+ S.lyrics.forEach((l,i)=>{if(l.time==null)return;const next=S.lyrics.slice(i+1).find(l=>l.time!=null)?.time??d;const end=Math.min(l.end??next,next,d);const b=document.createElement('button');b.className='clip'+(i===selectedLine?' selected':'');b.style.left=(l.time/d*100)+'%';b.style.width=(Math.max(.03,end-l.time)/d*100)+'%';b.textContent=l.text;b.title=`${l.time.toFixed(2)}s · ${l.text}`;b.setAttribute('aria-label',`歌詞${i+1}: ${l.text}、${l.time.toFixed(2)}秒`);b.onpointerdown=e=>startClipDrag(e,i,b);b.onclick=()=>{selectedLine=i;if(audio.src){audio.currentTime=Math.min(duration(),l.time+.5);syncBgVideo();}renderLyricList();};$('clips').append(b);});
+ $('selectionLabel').textContent=S.lyrics[selectedLine]?`行 ${selectedLine+1} / ${S.lyrics.length}`:'歌詞を読み込んでください';drawWave();updatePlayhead();}
+function drawWave(){const c=$('waveform'),width=Math.max(300,$('timelineContent').clientWidth);c.width=width*devicePixelRatio;c.height=78*devicePixelRatio;const x=c.getContext('2d');x.scale(devicePixelRatio,devicePixelRatio);x.clearRect(0,0,width,78);if(!wavePeaks.length){x.fillStyle='#aeb5c0';x.font='12px sans-serif';x.fillText('音楽を選ぶと波形を表示します',14,35);return;}x.fillStyle='#768360';for(let i=0;i<width;i+=3){const a=wavePeaks[Math.min(wavePeaks.length-1,Math.floor(i/width*wavePeaks.length))]||0;const h=Math.max(1,a*58);x.fillRect(i,39-h/2,2,h);}}
+function updatePlayhead(){$('playhead').style.left=(audio.currentTime/duration()*100)+'%';}
+function startClipDrag(e,i,b){if(isRecording())return;e.preventDefault();checkpoint();selectedLine=i;const startX=e.clientX,old=S.lyrics[i].time,d=duration(),width=$('timelineContent').clientWidth;let moved=false;const prev=S.lyrics.slice(0,i).filter(l=>l.time!=null).at(-1)?.time??-.01,next=S.lyrics.slice(i+1).find(l=>l.time!=null)?.time??d+.01;
+ b.setPointerCapture(e.pointerId);b.onpointermove=ev=>{if(Math.abs(ev.clientX-startX)>3)moved=true;if(!moved)return;const t=Math.round(Math.max(prev+.01,Math.min(next-.01,old+(ev.clientX-startX)/width*d))*100)/100;S.lyrics[i].time=t;if(S.lyrics[i].end!=null&&S.lyrics[i].end<=t)delete S.lyrics[i].end;b.style.left=(t/d*100)+'%';};b.onpointerup=()=>{b.onpointermove=null;if(moved){b.onclick=null;scheduleSave();setTimeout(renderLyricList,0);}};b.onpointercancel=()=>{b.onpointermove=null;renderLyricList();};}
+$('waveform').onpointerdown=e=>{if(!audio.src||isRecording())return;const r=e.currentTarget.getBoundingClientRect();audio.currentTime=Math.max(0,Math.min(duration(),(e.clientX-r.left)/r.width*duration()));syncBgVideo();updatePlayhead();};
+$('timelineZoom').onchange=()=>{zoom=+$('timelineZoom').value;renderTimeline();};
+audio.addEventListener('timeupdate',updatePlayhead);audio.addEventListener('loadedmetadata',renderTimeline);window.addEventListener('resize',()=>requestAnimationFrame(drawWave));
+let waveformGeneration=0;
+async function loadWave(file){const generation=++waveformGeneration;wavePeaks=[];drawWave();let ac;try{ac=new (window.AudioContext||window.webkitAudioContext)();const b=await ac.decodeAudioData(await file.arrayBuffer());if(generation!==waveformGeneration)return;const samples=b.getChannelData(0),count=3000;wavePeaks=Array.from({length:count},(_,i)=>{const start=Math.floor(i*samples.length/count),end=Math.floor((i+1)*samples.length/count);let max=0;for(let j=start;j<end;j++)max=Math.max(max,Math.abs(samples[j]));return max;});drawWave();}catch(_){toast('波形を解析できませんでした。再生可能なら編集を続けられます');}finally{if(ac)await ac.close();}}
+$('audioFile').addEventListener('change',e=>{if(e.target.files[0])loadWave(e.target.files[0]);});
+
+function drawSpatialFX(info){const strength=(S.style.spatial??35)/100;if(strength<=0||['fade','type','rise'].includes(info.pattern))return;const energy=Math.max(1-clamp01(info.appear/.7),1-clamp01(info.remain/.35));if(energy<=0)return;ctx.save();ctx.globalAlpha=energy*strength*.5;ctx.strokeStyle=S.style.chroma?'#ffffff':S.style.textColor;ctx.lineWidth=2*SC;for(let k=0;k<14;k++){const angle=rnd(info.idx*17+k)*Math.PI*2,dist=(.22+(1-energy)*.48)*W;const cx=W/2+Math.cos(angle)*dist,cy=H/2+Math.sin(angle)*dist*.65;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*(40+energy*160),cy+Math.sin(angle)*(40+energy*160));ctx.stroke();}ctx.restore();}
+
+// Save, undo, import and demo.
+$('undo').onclick=undo;$('redo').onclick=redo;
+$('saveProject').onclick=()=>{download(snapshot(),fileBase()+'.json','application/json');toast('保存しました。音楽・背景・追加フォントは再読込時に選び直してください');};
+function validProject(p){if(!p||p.version!==2||!Array.isArray(p.lyrics)||p.lyrics.length>10000)throw Error('形式');let last=-1;for(const l of p.lyrics){if(typeof l.text!=='string'||l.text.length>10000||!(l.time===null||(Number.isFinite(l.time)&&l.time>=0&&l.time>last)))throw Error('歌詞');if(l.time!=null)last=l.time;if(l.end!=null&&(!Number.isFinite(l.end)||l.time==null||l.end<=l.time))throw Error('終了');if(l.pattern&&!PATTERN_OPTS.some(x=>x[0]===l.pattern))l.pattern='';}const style={...defaultStyle};for(const [key,val] of Object.entries(p.style||{})){if(!(key in defaultStyle))continue;if(typeof defaultStyle[key]==='number'){const bounds={fontSize:[30,160],glow:[0,60],dim:[0,90],outline:[0,12]};const [lo,hi]=bounds[key]??[0,100];if(Number.isFinite(val))style[key]=Math.max(lo,Math.min(hi,val));}else if(typeof val===typeof defaultStyle[key])style[key]=val;}for(const k of ['textColor','bgColor','bgColor2'])if(!/^#[0-9a-f]{6}$/i.test(style[k]||''))style[k]=defaultStyle[k];if(!PATTERN_OPTS.some(x=>x[0]===style.animType))style.animType='fade';if(!['center','scatter','lower'].includes(style.layout))style.layout='center';p.style=style;return p;}
+$('projectFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const p=validProject(JSON.parse(await f.text()));checkpoint();audio.pause();restoreSnapshot(JSON.stringify(p));toast('復元しました。音楽・背景・追加フォントは素材から選んでください');}catch(_){toast('このプロジェクトは読み込めません。形式と歌詞の時間順を確認してください');}e.target.value='';};
+const mutationButtons=new Set(['loadLyrics','resetTiming','backOne','tapBtn','tapFab','tapLayer']);
+document.addEventListener('click',e=>{if(isRecording())return;const target=e.target.closest('button,.preset,#tapLayer');if(target&&(mutationButtons.has(target.id)||target.classList.contains('preset')))checkpoint();},true);
+function captureEdit(e){if(isRecording()||['seek','safeArea','timelineZoom','timingMode'].includes(e.target.id)||e.target.type==='file')return;if(!e.target.matches('input,select,textarea'))return;if(!pendingHistory){checkpoint();pendingHistory=setTimeout(()=>pendingHistory=null,350);}}
+document.addEventListener('beforeinput',captureEdit,true);
+document.addEventListener('pointerdown',captureEdit,true);
+document.addEventListener('keydown',e=>{captureEdit(e);if(e.code==='Space'&&timingMode&&!audio.paused&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!isRecording())checkpoint();},true);
+document.addEventListener('input',e=>{if(['seek','safeArea','timelineZoom'].includes(e.target.id)||e.target.type==='file')return;scheduleSave();});
+document.addEventListener('change',()=>{renderTimeline();scheduleSave();});
+document.addEventListener('click',e=>{if(e.target.closest('.preset')||mutationButtons.has(e.target.id)){syncExtras();renderTimeline();scheduleSave();}});
+document.addEventListener('keydown',e=>{const editing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName);if(!editing&&(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}if(!editing&&!isRecording()&&['ArrowLeft','ArrowRight'].includes(e.key)&&S.lyrics[selectedLine]?.time!=null){e.preventDefault();checkpoint();const l=S.lyrics[selectedLine];setLyricTime(selectedLine,Math.round((l.time+(e.key==='ArrowRight'?1:-1)*(e.shiftKey?.5:.05))*100)/100);renderLyricList();scheduleSave();}if(e.code==='Space'&&timingMode&&!audio.paused)scheduleSave();});
+let customFonts=[];
+$('fontFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const family='CustomFont'+customFonts.length,font=new FontFace(family,await f.arrayBuffer());await font.load();document.fonts.add(font);customFonts.push(font);const option=new Option(f.name,`'${family}',sans-serif`);$('fontSel').add(option);checkpoint();S.style.font=option.value;syncControls();scheduleSave();toast('フォントを追加しました');}catch(_){toast('フォントを読み込めませんでした');}};
+function parseSubtitles(text){const lines=[];if(text.includes('-->')){for(const block of text.replace(/\r/g,'').trim().split(/\n\s*\n/)){const rows=block.split('\n'),idx=rows.findIndex(l=>l.includes('-->'));if(idx<0)continue;const times=rows[idx].match(/\d{2}:\d{2}:\d{2}[,.]\d{3}/g);if(!times||times.length!==2)continue;const seconds=t=>{const [h,m,s]=t.replace(',','.').split(':').map(Number);return h*3600+m*60+s;};lines.push({text:rows.slice(idx+1).join(' ').replace(/<[^>]*>/g,''),time:seconds(times[0]),end:seconds(times[1]),pattern:''});}}else{for(const row of text.split('\n')){const matches=[...row.matchAll(/\[(\d+):(\d+(?:\.\d+)?)\]/g)];const lyric=row.replace(/\[[^\]]*\]/g,'').trim();if(!lyric)continue;for(const m of matches)lines.push({text:lyric,time:+m[1]*60+(+m[2]),pattern:''});}}return lines.sort((a,b)=>a.time-b.time);}
+$('subtitleFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const lyrics=parseSubtitles(await f.text());if(!lyrics.length)throw Error();const p=validProject({version:2,lyrics,style:S.style,name:$('projectName').value});checkpoint();restoreSnapshot(JSON.stringify(p));toast(`${lyrics.length}行の字幕を読み込みました`);}catch(_){toast('時間順のLRCまたはSRTファイルを選んでください');}e.target.value='';};
+function srtTime(t){const ms=Math.round(t*1000);return `${String(Math.floor(ms/3600000)).padStart(2,'0')}:${String(Math.floor(ms/60000)%60).padStart(2,'0')}:${String(Math.floor(ms/1000)%60).padStart(2,'0')},${String(ms%1000).padStart(3,'0')}`;}
+$('saveSrt').onclick=()=>{const lyrics=S.lyrics.filter(l=>l.time!=null);if(!lyrics.length){toast('先にタイミングを記録してください');return;}download(lyrics.map((l,i)=>`${i+1}\n${srtTime(l.time)} --> ${srtTime(Math.min(l.end??Infinity,lyrics[i+1]?.time??Math.min(l.time+4,duration())))}\n${l.text}\n`).join('\n'),fileBase()+'.srt','text/plain;charset=utf-8');};
+$('demo').onclick=()=>{if(S.lyrics.length&&!confirm('現在の歌詞をデモに置き換えますか？「戻す」で歌詞を復元できます。'))return;checkpoint();audio.pause();const rate=22050,n=rate*12,buf=new ArrayBuffer(44+n*2),dv=new DataView(buf),str=(o,s)=>[...s].forEach((c,i)=>dv.setUint8(o+i,c.charCodeAt(0)));str(0,'RIFF');dv.setUint32(4,36+n*2,true);str(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,rate,true);dv.setUint32(28,rate*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);str(36,'data');dv.setUint32(40,n*2,true);for(let i=0;i<n;i++){const t=i/rate,b=t%.5,env=Math.exp(-b*24),mel=Math.sin(t*Math.PI*2*[220,261.63,329.63,293.66][Math.floor(t/3)%4])*.045;dv.setInt16(44+i*2,(Math.sin(2*Math.PI*(70*b+2*(1-Math.exp(-b*30))))*env*.3+mel)*Math.min(1,(12-t)*6)*32767,true);}if(audio.src)URL.revokeObjectURL(audio.src);const blob=new Blob([buf],{type:'audio/wav'});audio.src=URL.createObjectURL(blob);audio.load();loadWave(blob);$('audioName').textContent='デモ・ガイド音 / 120 BPM';$('projectName').value='Midnight / Demo';S.lyrics=['夜をほどいて','声は光になる','まだ見ぬ、その先へ','MAKE IT MOVE'].map((text,i)=>({text,time:i*3,pattern:['burstIn','chromaTrail','wireframe','channelSplit'][i]}));S.tapIndex=4;applyPreset('minimal');Object.assign(S.style,{fontSize:100,fontWeight:'900',textColor:'#cfed75',bgColor:'#101417',bgColor2:'#26312a',spatial:65});syncControls();syncExtras();$('lyricInput').value=S.lyrics.map(l=>l.text).join('\n');renderLyricList();audio.currentTime=1;timingMode=false;$('timingMode').checked=false;updateTapBtn();scheduleSave();document.querySelector('.layout').dataset.mobile='preview';toast('12秒のデモです。再生してモーションを確認できます');};
+
+// Real-time export: initialize and seek before recording, clean up all tracks.
+function resetExportUI(){exportBusy=false;clearInterval(recTimer);if(exportingStream)exportingStream.getVideoTracks().forEach(t=>t.stop());exportingStream=null;capTrack=null;$('recDot').classList.remove('on');$('cancelExport').hidden=true;$('exportProgress').hidden=true;document.querySelectorAll('[data-export-disabled]').forEach(el=>{el.disabled=false;el.removeAttribute('data-export-disabled');});$('recordBtn').textContent='動画を書き出す';updateTapBtn();}
+function seekMedia(media,time){return new Promise((resolve,reject)=>{if(Math.abs(media.currentTime-time)<.001&&!media.seeking){resolve();return;}const done=()=>{clearTimeout(timer);media.removeEventListener('seeked',done);resolve();};const timer=setTimeout(()=>{media.removeEventListener('seeked',done);reject(Error('先頭への移動に時間がかかっています'));},8000);media.addEventListener('seeked',done);media.currentTime=time;});}
+async function exportVideo(){if(isRecording())return;if(!audio.src||!Number.isFinite(audio.duration)||audio.duration<=0){toast('再生できる音楽を先に読み込んでください');return;}if(!S.lyrics.length||S.lyrics.some(l=>l.time==null)){toast('すべての歌詞の開始時間を記録してください');return;}const mime=pickMime();if(!mime||!canvas.captureStream){toast('このブラウザは動画の書き出しに対応していません');return;}exportBusy=true;exportCancelled=false;audio.pause();timingMode=false;$('timingMode').checked=false;updateTapBtn();FPS=+$('exportFps').value;FRAME_MS=1000/FPS;
+ document.querySelectorAll('button,input,select,textarea').forEach(el=>{if(el.id==='cancelExport'||el.disabled)return;el.disabled=true;el.dataset.exportDisabled='true';});$('cancelExport').hidden=false;$('exportProgress').hidden=false;$('exportStatus').textContent='フォントと素材を準備中…';
+ try{setupAudioGraph();if(audioCtx.state==='suspended')await audioCtx.resume();await document.fonts.ready;await document.fonts.load(`${S.style.fontWeight} ${S.style.fontSize}px ${S.style.font}`,S.lyrics.map(l=>l.text).join(''));await seekMedia(audio,0);if(S.bgType==='video')await seekMedia(bgVideo,0);if(exportCancelled){resetExportUI();return;}renderOnce();const stream=canvas.captureStream(FPS);exportingStream=new MediaStream([...stream.getVideoTracks(),...mediaDest.stream.getAudioTracks()]);chunks=[];recorder=new MediaRecorder(exportingStream,{mimeType:mime,videoBitsPerSecond:+$('exportBitrate').value,audioBitsPerSecond:256000});const actualMime=recorder.mimeType||mime;let ended=()=>{if(recorder.state==='recording')recorder.stop();};
+ recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onerror=()=>{exportCancelled=true;$('exportStatus').textContent='録画に失敗しました。別のブラウザでお試しください。';if(recorder.state!=='inactive')recorder.stop();else resetExportUI();};
+ recorder.onstop=()=>{audio.removeEventListener('ended',ended);audio.pause();bgVideo.pause();if(!exportCancelled){const ext=actualMime.includes('mp4')?'mp4':'webm';download(new Blob(chunks,{type:actualMime}),fileBase()+'.'+ext,actualMime);$('exportStatus').textContent=`書き出しました · 1920 × 1080 · ${ext.toUpperCase()}`;}else $('exportStatus').textContent='書き出しを中止しました';chunks=[];resetExportUI();};
+ audio.addEventListener('ended',ended);recorder.start(200);await audio.play();$('recDot').classList.add('on');$('recordBtn').textContent='書き出し中…';$('exportStatus').textContent='録画中 · このタブを前面にしてください';recTimer=setInterval(()=>{$('recTime').textContent=fmt(audio.currentTime);$('exportProgress').value=audio.currentTime/audio.duration;},200);
+ }catch(err){exportCancelled=true;audio.pause();bgVideo.pause();if(recorder&&recorder.state!=='inactive')recorder.stop();resetExportUI();$('exportStatus').textContent='書き出せませんでした。素材の読み込み・ブラウザの対応を確認してください。';}}
+$('cancelExport').onclick=()=>{exportCancelled=true;if(recorder&&recorder.state==='recording')recorder.stop();else{$('exportStatus').textContent='中止処理中…';}};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&isRecording()){exportCancelled=true;if(recorder&&recorder.state==='recording')recorder.stop();toast('タブが非表示になったため録画を中止しました');}});
+
+PRESETS.editorial={label:'エディトリアル',sw:'linear-gradient(120deg,#cfed75,#283524)',s:{...PRESETS.minimal.s,fontSize:112,fontWeight:'900',textColor:'#cfed75',bgColor:'#101417',bgColor2:'#28352b',animType:'burstIn',spatial:60}};
+PRESETS.title={label:'シネマ・タイトル',sw:'linear-gradient(120deg,#e9e3cc,#283347)',s:{...PRESETS.mono.s,fontSize:90,layout:'center',animType:'wireframe',scan:0,textColor:'#f1ead9',spatial:15}};
+for(const p of Object.values(PRESETS)){p.s.outline??=0;p.s.spatial??=35;}
+buildPresets();applyPreset('editorial');syncExtras();renderLyricList();updateHistory();updateTapBtn();$('toast').classList.remove('show');$('recordBtn').innerHTML='動画を書き出す <span class="fmt-badge">'+(pickMime().includes('mp4')?'MP4':'WebM')+'</span>';
+try{const saved=localStorage.getItem('lyric-motion-desk-v2');if(saved){restoreSnapshot(JSON.stringify(validProject(JSON.parse(saved))));$('saveState').textContent='前回の編集を復元';}}catch(_){}
+if(!S.lyrics.length){$('exportStatus').textContent='素材 → 音楽を選ぶ → 歌詞を反映 → タイミング記録。素材タブでデモも試せます。';}
+
+// Mobile and desktop share the same project, renderer and controls.
+document.querySelector('.logo small').textContent='MOTION DESK · v2.1.0';
+document.querySelector('.col.center').id='previewPanel';
+document.querySelector('.col.left').id='editPanel';
+document.querySelector('.col.right').id='stylePanel';
+document.querySelector('.export-box').id='exportPanel';
+mobile.innerHTML='<button class="btn sm" data-target="previewPanel">プレビュー</button><button class="btn sm" data-target="editPanel">歌詞・素材</button><button class="btn sm" data-target="stylePanel">スタイル</button><button class="btn sm" data-target="exportPanel">書き出し</button>';
+mobile.onclick=e=>{const b=e.target.closest('[data-target]');if(!b)return;$(b.dataset.target).scrollIntoView({behavior:'auto',block:'start'});};
+document.querySelectorAll('[data-mobile]').forEach(el=>el.removeAttribute('data-mobile'));
+document.querySelector('.timeline-footer').innerHTML='<span class="timeline-hint">選択行の開始時間を調整。ドラッグ・数値入力も使えます。</span><div class="nudge-controls"><button class="btn sm" id="prevLine" aria-label="前の歌詞を選択">前の行</button><button class="btn sm" id="nudgeEarlier" aria-label="開始を0.05秒早める">−0.05秒</button><button class="btn sm" id="nudgeLater" aria-label="開始を0.05秒遅らせる">＋0.05秒</button><button class="btn sm" id="nextLine" aria-label="次の歌詞を選択">次の行</button></div>';
+function chooseLine(delta){if(isRecording()||!S.lyrics.length)return;selectedLine=Math.max(0,Math.min(S.lyrics.length-1,selectedLine+delta));renderLyricList();}
+function nudgeLine(delta){if(isRecording())return;const line=S.lyrics[selectedLine];if(!line||line.time==null){toast('歌詞の開始時間を先に記録してください');return;}checkpoint();if(setLyricTime(selectedLine,Math.round((line.time+delta)*100)/100)){renderLyricList();scheduleSave();}}
+$('prevLine').onclick=()=>chooseLine(-1);$('nextLine').onclick=()=>chooseLine(1);$('nudgeEarlier').onclick=()=>nudgeLine(-.05);$('nudgeLater').onclick=()=>nudgeLine(.05);
+const dock=document.createElement('section');dock.className='mobile-dock';dock.setAttribute('aria-label','再生とタイミング記録');dock.innerHTML='<div class="dock-preview" id="dockPreview" hidden><canvas id="dockCanvas" width="640" height="360" aria-label="ミニプレビュー"></canvas></div><div class="dock-meta"><span id="dockTime">0:00 / 0:00</span><button class="btn sm" id="toggleMini" aria-expanded="false">ミニプレビュー</button></div><div class="dock-buttons"><button class="btn sm" id="dockCue" aria-label="先頭へ戻る">⏮</button><button class="play-btn" id="dockPlay" aria-label="再生・一時停止">▶</button><button class="btn" id="dockTap">タイミング記録をON</button></div>';document.body.append(dock);
+$('dockPlay').onclick=togglePlay;$('dockCue').onclick=()=>{if(!isRecording())cueStart();};
+$('dockTap').onclick=()=>{if(isRecording())return;if(!S.lyrics.length){toast('先に歌詞を読み込んでください');$('editPanel').scrollIntoView();return;}if(!timingMode){timingMode=true;$('timingMode').checked=true;updateTapBtn();updateDock();toast('記録モードON。再生して歌詞の瞬間にマークしてください');return;}if(audio.paused){togglePlay();return;}if(S.tapIndex>=S.lyrics.length){timingMode=false;$('timingMode').checked=false;updateTapBtn();updateDock();return;}checkpoint();doTap();scheduleSave();updateDock();};
+$('toggleMini').onclick=()=>{const open=$('dockPreview').hidden;$('dockPreview').hidden=!open;$('toggleMini').setAttribute('aria-expanded',open);$('toggleMini').textContent=open?'プレビューを閉じる':'ミニプレビュー';paintMini();};
+function updateDock(){const active=activeLyric(audio.currentTime);$('dockTime').textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration)+(active?' · '+active.ly.text:'');$('dockPlay').textContent=audio.paused?'▶':'⏸';$('dockTap').textContent=!timingMode?'タイミング記録をON':S.tapIndex>=S.lyrics.length?'記録完了 · OFFにする':audio.paused?'記録する曲を再生':`マーク ${S.tapIndex+1} / ${S.lyrics.length}`;for(const id of ['dockCue','dockPlay','dockTap'])$(id).disabled=isRecording();}
+function paintMini(){if(!$('dockPreview').hidden&&window.matchMedia('(max-width:760px)').matches)$('dockCanvas').getContext('2d').drawImage(canvas,0,0,640,360);}
+const beforeMiniRender=renderOnce;renderOnce=function(){beforeMiniRender();paintMini();};
+for(const event of ['play','pause','loadedmetadata','timeupdate','ended'])audio.addEventListener(event,updateDock);
+document.addEventListener('change',updateDock);document.addEventListener('click',()=>{updateDock();});
+bgVideo.muted=true;audio.setAttribute('playsinline','');
+togglePlay=function(){if(isRecording())return;if(!audio.src){toast('音楽を選ぶか、デモを試してください');$('mediaTab').click();$('editPanel').scrollIntoView();return;}if(audio.paused){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});audio.play().catch(()=>toast('音楽を再度選択して再生してください'));}else audio.pause();};
+// Existing buttons keep the same function reference; replace via the capture phase.
+$('playBtn').addEventListener('click',e=>{e.stopImmediatePropagation();togglePlay();},true);
+$('dockPlay').onclick=()=>togglePlay();
+let latestDownloadURL=null, latestDownloadFile=null;
+const result=document.createElement('section');result.className='result-card';result.hidden=true;result.id='downloadResult';result.setAttribute('aria-live','polite');result.innerHTML='<strong id="downloadName"></strong><div class="result-actions"><a class="btn primary" id="downloadLink">ダウンロード</a><button class="btn" id="shareFile">共有・ファイルに保存</button><button class="btn" id="dismissDownload" aria-label="保存結果を閉じる">閉じる</button></div><p>保存が始まらない場合は「ダウンロード」をタップしてください。共有対応環境では共有メニューからも保存できます。</p>';document.body.append(result);
+download=function(data,name,type){if(latestDownloadURL)URL.revokeObjectURL(latestDownloadURL);latestDownloadFile=new File([data],name,{type:type.split(';')[0]});latestDownloadURL=URL.createObjectURL(latestDownloadFile);$('downloadName').textContent=name;$('downloadLink').href=latestDownloadURL;$('downloadLink').download=name;$('shareFile').hidden=!(navigator.canShare&&navigator.canShare({files:[latestDownloadFile]}));result.hidden=false;result.classList.add('save-sheet');const a=document.createElement('a');a.href=latestDownloadURL;a.download=name;document.body.append(a);a.click();a.remove();};
+$('shareFile').onclick=async()=>{if(!latestDownloadFile)return;try{await navigator.share({files:[latestDownloadFile],title:latestDownloadFile.name});}catch(e){if(e.name!=='AbortError')toast('共有できませんでした。「ダウンロード」を使ってください');}};
+$('dismissDownload').onclick=()=>{result.hidden=true;};
+// A touch gesture cancelled by scrolling must not change the project.
+const baseClipDrag=startClipDrag;
+startClipDrag=function(e,i,b){const original=S.lyrics[i]?{...S.lyrics[i]}:null;baseClipDrag(e,i,b);if(!original||isRecording())return;b.onpointercancel=()=>{b.onpointermove=null;S.lyrics[i]=original;renderLyricList();};};
+const checkedTap=doTap;doTap=function(){if(!timingMode||isRecording()||audio.paused||S.tapIndex>=S.lyrics.length)return;const prev=S.lyrics.slice(0,S.tapIndex).filter(l=>l.time!=null).at(-1)?.time??-1;if(audio.currentTime<=prev){toast('前の歌詞より後の位置でマークしてください');return;}checkedTap();updateDock();};
+// Keep old event listeners on the checked path.
+for(const id of ['tapBtn','tapLayer','tapFab'])$(id).addEventListener('click',e=>{e.stopImmediatePropagation();doTap();scheduleSave();},true);
+updateDock();
+const resetExportWithDock=resetExportUI;resetExportUI=function(){resetExportWithDock();updateDock();};
+
 </script>
 </body>
 </html>
