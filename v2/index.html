@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Lyric Video Studio — v2.2.0</title>
+<title>Lyric Video Studio — v2.3.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -200,6 +200,10 @@ html{scroll-padding-top:64px}body{background:var(--bg)}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.toast,.tap-layer,.tap-fab{animation:none!important}}
 
 .font-sample{padding:16px 10px;margin:8px 0 10px;border:1px solid var(--line);border-radius:7px;font-size:22px;background:#10111d;color:#f4f3ff;overflow-wrap:anywhere}.font-sample+ .mini-tip{margin-top:6px}
+
+.canvas-frame{width:min(100%,calc(58vh * var(--canvas-ratio,1.7777778)));margin:0 auto}
+.format-controls{width:100%;display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}.format-controls label{flex:1;min-width:130px;font-size:13px;color:var(--muted)}.format-controls select{display:block;width:100%;margin-top:6px;min-height:44px}
+.dock-preview canvas{margin:0 auto;max-width:100%;object-fit:contain}
 </style>
 </head>
 <body>
@@ -389,7 +393,7 @@ const PRESETS = {
 const $ = id => document.getElementById(id);
 const audio = $('audio'), bgVideo = $('bgVideo'), bgImage = $('bgImage');
 const canvas = $('stage'), ctx = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height, SC = W/1280;
+let W = canvas.width, H = canvas.height, SC = Math.min(W,H)/720;
 const IN = 0.45, OUT = 0.40;
 
 // temp canvas for particle patterns
@@ -510,6 +514,7 @@ function applyPreset(key){
   document.querySelectorAll('.preset').forEach(e=>e.classList.toggle('on',e.dataset.key===key));toast(p.label+' を適用');
 }
 function syncControls(){
+  if($('aspectRatio'))applyStudioAspect();
   $('fontSel').value=S.style.font;if($('fontLatin')){$('fontLatin').value=S.style.fontLatin||'';refreshStudioFont();}$('textColor').value=S.style.textColor;
   $('fontSize').value=S.style.fontSize;$('fontSizeV').textContent=S.style.fontSize;
   $('fontWeight').value=S.style.fontWeight;$('glow').value=S.style.glow;$('glowV').textContent=S.style.glow;
@@ -562,7 +567,7 @@ function drawBackground(){
 function drawCover(media){
   const mw=media.videoWidth||media.naturalWidth,mh=media.videoHeight||media.naturalHeight;
   if(!mw||!mh){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);return;}
-  const r=Math.max(W/mw,H/mh),dw=mw*r,dh=mh*r;ctx.drawImage(media,(W-dw)/2,(H-dh)/2,dw,dh);
+  ctx.fillStyle=S.style.bgColor;ctx.fillRect(0,0,W,H);const r=(S.style.bgFit==='contain'?Math.min:Math.max)(W/mw,H/mh),dw=mw*r,dh=mh*r;ctx.drawImage(media,(W-dw)/2,(H-dh)/2,dw,dh);
 }
 
 // ---------- MOTION ENGINE (A-K) ----------
@@ -723,7 +728,7 @@ $('recordBtn').addEventListener('click',exportVideo);
 // ---------- Motion Desk ----------
 let timingMode=false, selectedLine=0, zoom=1, wavePeaks=[], undoStack=[], redoStack=[], pendingHistory=null;
 let exportBusy=false, exportCancelled=false, exportingStream=null, autoSaveTimer;
-S.style.outline=0;S.style.spatial=35;S.style.fontLatin='';
+S.style.outline=0;S.style.spatial=35;S.style.fontLatin='';S.style.aspectRatio='16:9';S.style.bgFit='cover';
 const defaultStyle={...S.style};
 const isRecording=()=>exportBusy;
 function togglePlay(){if(isRecording())return;if(!audio.src){toast('音楽を選ぶか、デモを試してください');return;}if(audio.paused)audio.play().catch(()=>toast('音声を再生できませんでした'));else audio.pause();}
@@ -757,13 +762,13 @@ $('timingMode').onchange=()=>{timingMode=$('timingMode').checked;updateTapBtn();
 $('loadLyrics').textContent='歌詞を反映';
 $('lyricInput').setAttribute('aria-label','歌詞を1行ずつ入力');
 $('lyricList').before(Object.assign(document.createElement('div'),{className:'status-count',id:'lyricCount'}));
-document.querySelector('.stage-wrap').insertAdjacentHTML('beforebegin','<div class="stage-header"><strong>プレビュー</strong><span>1920 × 1080 / 16:9</span><label><input type="checkbox" id="safeArea"> 安全枠</label></div>');
+document.querySelector('.stage-wrap').insertAdjacentHTML('beforebegin','<div class="stage-header"><strong>プレビュー</strong><span id="stageDimensions">1920 × 1080 / 16:9</span><label><input type="checkbox" id="safeArea"> 安全枠</label></div>');
 document.querySelector('.canvas-frame').insertAdjacentHTML('beforeend','<div class="safe-overlay" id="safeOverlay" hidden></div>');$('safeArea').onchange=()=>{$('safeOverlay').hidden=!$('safeArea').checked;};
 $('playBtn').setAttribute('aria-label','再生・一時停止');$('cueBtn').setAttribute('aria-label','先頭に戻る');$('seek').setAttribute('aria-label','再生位置');
 document.querySelector('.transport').insertAdjacentHTML('afterend',`<section class="timeline-shell"><div class="timeline-toolbar"><strong>タイムライン</strong><span id="selectionLabel">歌詞を選択して調整</span><select id="timelineZoom" aria-label="タイムラインの拡大率"><option value="1">全体</option><option value="2">2×</option><option value="4">4×</option><option value="8">8×</option></select></div><div class="timeline-scroll" id="timelineScroll"><div class="timeline-content" id="timelineContent"><div class="ruler" id="ruler"></div><canvas id="waveform" height="100"></canvas><div id="clips"></div><div class="playhead" id="playhead"></div></div></div><div class="timeline-footer">歌詞をドラッグして開始位置を調整 · ← → で選択行を0.05秒移動</div></section>`);
 const exportBox=$('recordBtn').closest('div').parentElement;exportBox.classList.add('export-box');
 $('recordBtn').parentElement.insertAdjacentHTML('beforebegin','<div class="export-controls"><label>フレームレート<select id="exportFps"><option value="30">30 fps</option><option value="60">60 fps</option></select></label><label>映像ビットレート<select id="exportBitrate"><option value="16000000">16 Mbps</option><option value="24000000" selected>24 Mbps</option><option value="40000000">40 Mbps</option></select></label></div>');
-$('exportNote').innerHTML='フルHD・音声付きで実時間録画します。MP4対応環境ではMP4、その他はWebM。端末の処理速度によってフレーム落ちや可変フレームレートが発生します。録画中はこのタブを前面にしてください。';
+$('exportNote').innerHTML='選択したアスペクト比・画面に表示された解像度で、音声付きの実時間録画をします。MP4対応環境ではMP4、その他はWebM。端末の処理速度によってフレーム落ちや可変フレームレートが発生します。録画中はこのタブを前面にしてください。';
 $('recordBtn').insertAdjacentHTML('afterend','<button class="btn" id="cancelExport" hidden style="margin-left:8px">中止</button>');$('exportNote').insertAdjacentHTML('beforebegin','<progress class="export-progress" id="exportProgress" max="1" value="0" hidden></progress><div id="exportStatus" class="mini-tip" aria-live="polite"></div>');
 const right=document.querySelector('.col.right');let section=null;
 for(const el of [...right.children]){if(el.classList.contains('divider')){el.remove();continue;}if(el.matches('h2')&&!el.textContent.includes('プリセット')){const detail=document.createElement('details');detail.open=el.textContent==='文字';detail.innerHTML='<summary></summary><div class="detail-body"></div>';detail.querySelector('summary').textContent=el.textContent;right.insertBefore(detail,el);section=detail.lastElementChild;el.remove();}else if(section)section.append(el);}
@@ -827,7 +832,7 @@ async function exportVideo(){if(isRecording())return;if(!audio.src||!Number.isFi
  document.querySelectorAll('button,input,select,textarea').forEach(el=>{if(el.id==='cancelExport'||el.disabled)return;el.disabled=true;el.dataset.exportDisabled='true';});$('cancelExport').hidden=false;$('exportProgress').hidden=false;$('exportStatus').textContent='フォントと素材を準備中…';
  try{setupAudioGraph();if(audioCtx.state==='suspended')await audioCtx.resume();await ensureStudioFonts(true);await seekMedia(audio,0);if(S.bgType==='video')await seekMedia(bgVideo,0);if(exportCancelled){resetExportUI();return;}renderOnce();const stream=canvas.captureStream(FPS);exportingStream=new MediaStream([...stream.getVideoTracks(),...mediaDest.stream.getAudioTracks()]);chunks=[];recorder=new MediaRecorder(exportingStream,{mimeType:mime,videoBitsPerSecond:+$('exportBitrate').value,audioBitsPerSecond:256000});const actualMime=recorder.mimeType||mime;let ended=()=>{if(recorder.state==='recording')recorder.stop();};
  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onerror=()=>{exportCancelled=true;$('exportStatus').textContent='録画に失敗しました。別のブラウザでお試しください。';if(recorder.state!=='inactive')recorder.stop();else resetExportUI();};
- recorder.onstop=()=>{audio.removeEventListener('ended',ended);audio.pause();bgVideo.pause();if(!exportCancelled){const ext=actualMime.includes('mp4')?'mp4':'webm';download(new Blob(chunks,{type:actualMime}),fileBase()+'.'+ext,actualMime);$('exportStatus').textContent=`書き出しました · 1920 × 1080 · ${ext.toUpperCase()}`;}else $('exportStatus').textContent='書き出しを中止しました';chunks=[];resetExportUI();};
+ recorder.onstop=()=>{audio.removeEventListener('ended',ended);audio.pause();bgVideo.pause();if(!exportCancelled){const ext=actualMime.includes('mp4')?'mp4':'webm';download(new Blob(chunks,{type:actualMime}),fileBase()+'.'+ext,actualMime);$('exportStatus').textContent=`書き出しました · ${W} × ${H} · ${ext.toUpperCase()}`;}else $('exportStatus').textContent='書き出しを中止しました';chunks=[];resetExportUI();};
  audio.addEventListener('ended',ended);recorder.start(200);await audio.play();$('recDot').classList.add('on');$('recordBtn').textContent='書き出し中…';$('exportStatus').textContent='録画中 · このタブを前面にしてください';recTimer=setInterval(()=>{$('recTime').textContent=fmt(audio.currentTime);$('exportProgress').value=audio.currentTime/audio.duration;},200);
  }catch(err){exportCancelled=true;audio.pause();bgVideo.pause();if(recorder&&recorder.state!=='inactive')recorder.stop();resetExportUI();$('exportStatus').textContent='書き出せませんでした。素材の読み込み・ブラウザの対応を確認してください。';}}
 $('cancelExport').onclick=()=>{exportCancelled=true;if(recorder&&recorder.state==='recording')recorder.stop();else{$('exportStatus').textContent='中止処理中…';}};
@@ -851,7 +856,7 @@ const FONT_CATALOG=[
  ['Bebas Neue','Bebas Neue｜縦長のタイトル','en','400'],
  ['Zen Kaku Gothic New','Zen角ゴシック','jp','400;700;900'],
  ['Noto Sans JP','Noto Sans JP','jp','400;700;900'],
- ['M PLUS 1p','M PLUS 1p（旧版）','jp','400;700;800'],
+ ['M PLUS 1p','M PLUS 1p','jp','400;700;800'],
  ['Dela Gothic One','Dela Gothic One｜極太','jp','400']
 ];
 const fontCSSPromises=new Map();let fontRequestID=0,fontRefreshTimer;
@@ -889,7 +894,7 @@ try{const saved=localStorage.getItem('lyric-motion-desk-v2');if(saved){restoreSn
 if(!S.lyrics.length){$('exportStatus').textContent='素材 → 音楽を選ぶ → 歌詞を反映 → タイミング記録。素材タブでデモも試せます。';}
 
 // Mobile and desktop share the same project, renderer and controls.
-document.querySelector('.logo small').textContent='MOTION DESK · v2.2.0';
+document.querySelector('.logo small').textContent='MOTION DESK · v2.3.0';
 document.querySelector('.col.center').id='previewPanel';
 document.querySelector('.col.left').id='editPanel';
 document.querySelector('.col.right').id='stylePanel';
@@ -906,7 +911,7 @@ $('dockPlay').onclick=togglePlay;$('dockCue').onclick=()=>{if(!isRecording())cue
 $('dockTap').onclick=()=>{if(isRecording())return;if(!S.lyrics.length){toast('先に歌詞を読み込んでください');$('editPanel').scrollIntoView();return;}if(!timingMode){timingMode=true;$('timingMode').checked=true;updateTapBtn();updateDock();toast('記録モードON。再生して歌詞の瞬間にマークしてください');return;}if(audio.paused){togglePlay();return;}if(S.tapIndex>=S.lyrics.length){timingMode=false;$('timingMode').checked=false;updateTapBtn();updateDock();return;}checkpoint();doTap();scheduleSave();updateDock();};
 $('toggleMini').onclick=()=>{const open=$('dockPreview').hidden;$('dockPreview').hidden=!open;$('toggleMini').setAttribute('aria-expanded',open);$('toggleMini').textContent=open?'プレビューを閉じる':'ミニプレビュー';paintMini();};
 function updateDock(){const active=activeLyric(audio.currentTime);$('dockTime').textContent=fmt(audio.currentTime)+' / '+fmt(audio.duration)+(active?' · '+active.ly.text:'');$('dockPlay').textContent=audio.paused?'▶':'⏸';$('dockTap').textContent=!timingMode?'タイミング記録をON':S.tapIndex>=S.lyrics.length?'記録完了 · OFFにする':audio.paused?'記録する曲を再生':`マーク ${S.tapIndex+1} / ${S.lyrics.length}`;for(const id of ['dockCue','dockPlay','dockTap'])$(id).disabled=isRecording();}
-function paintMini(){if(!$('dockPreview').hidden&&window.matchMedia('(max-width:760px)').matches)$('dockCanvas').getContext('2d').drawImage(canvas,0,0,640,360);}
+function paintMini(){if(!$('dockPreview').hidden&&window.matchMedia('(max-width:760px)').matches)$('dockCanvas').getContext('2d').drawImage(canvas,0,0,$('dockCanvas').width,$('dockCanvas').height);}
 const beforeMiniRender=renderOnce;renderOnce=function(){beforeMiniRender();paintMini();};
 for(const event of ['play','pause','loadedmetadata','timeupdate','ended'])audio.addEventListener(event,updateDock);
 document.addEventListener('change',updateDock);document.addEventListener('click',()=>{updateDock();});
@@ -928,6 +933,23 @@ const checkedTap=doTap;doTap=function(){if(!timingMode||isRecording()||audio.pau
 for(const id of ['tapBtn','tapLayer','tapFab'])$(id).addEventListener('click',e=>{e.stopImmediatePropagation();doTap();scheduleSave();},true);
 updateDock();
 const resetExportWithDock=resetExportUI;resetExportUI=function(){resetExportWithDock();updateDock();};
+
+// v2.3: project dimensions shared by preview, effects, mini preview and export.
+function studioDimensions(ratio){return ({'16:9':[1920,1080],'9:16':[1080,1920],'1:1':[1080,1080],'4:5':[1080,1350]})[ratio]||[1920,1080];}
+function applyStudioAspect(){
+ const dims=studioDimensions(S.style.aspectRatio);if(!['16:9','9:16','1:1','4:5'].includes(S.style.aspectRatio))S.style.aspectRatio='16:9';
+ if(W!==dims[0]||H!==dims[1]){W=dims[0];H=dims[1];canvas.width=W;canvas.height=H;SC=Math.min(W,H)/720;}
+ const frame=document.querySelector('.canvas-frame');frame.style.aspectRatio=`${W} / ${H}`;frame.style.setProperty('--canvas-ratio',W/H);
+ if($('aspectRatio'))$('aspectRatio').value=S.style.aspectRatio;
+ if($('backgroundFit'))$('backgroundFit').value=S.style.bgFit==='contain'?'contain':'cover';
+ if($('stageDimensions'))$('stageDimensions').textContent=`${W} × ${H} / ${S.style.aspectRatio}`;
+ const mini=$('dockCanvas');if(mini){const scale=Math.min(320/W,180/H);mini.width=Math.round(W*scale);mini.height=Math.round(H*scale);mini.style.width=mini.width+'px';mini.style.height='auto';mini.style.aspectRatio=`${W} / ${H}`;}
+ renderOnce();
+}
+document.querySelector('.stage-header').insertAdjacentHTML('afterend','<div class="format-controls"><label for="aspectRatio">アスペクト比<select id="aspectRatio"><option value="16:9">16:9 横型</option><option value="9:16">9:16 縦型</option><option value="1:1">1:1 正方形</option><option value="4:5">4:5 縦型</option></select></label><label for="backgroundFit">背景の収め方<select id="backgroundFit"><option value="cover">画面を埋める（はみ出しをカット）</option><option value="contain">全体を表示（余白あり）</option></select></label></div>');
+$('aspectRatio').onchange=()=>{if(isRecording())return;checkpoint();S.style.aspectRatio=$('aspectRatio').value;applyStudioAspect();scheduleSave();};
+$('backgroundFit').onchange=()=>{if(isRecording())return;checkpoint();S.style.bgFit=$('backgroundFit').value;renderOnce();scheduleSave();};
+applyStudioAspect();
 
 </script>
 </body>
