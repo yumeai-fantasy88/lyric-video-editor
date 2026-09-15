@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Lyric Video Studio — v2.4.0</title>
+<title>Lyric Video Studio — v2.4.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -231,6 +231,34 @@ summary:before{color:var(--ink)}
 .btn:disabled,.play-btn:disabled{opacity:.45}
 #cancelExport{background:#a64b4b;color:white;border-color:#a64b4b}
 @media(max-width:760px){summary:before{color:var(--ink)}}
+/* Keep mobile document width separate from the scrollable timeline. */
+@media(max-width:760px){
+ html,body{width:100%;max-width:100%;overflow-x:hidden}
+ @supports(overflow:clip){html,body{overflow-x:clip}}
+ .topbar,.layout,.mobile-nav,.mobile-dock{width:100%;max-width:100%;min-width:0}
+ .layout .col>*{min-width:0;max-width:100%!important}
+ .topbar>*{min-width:0;max-width:100%}
+ .top-actions{grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr) minmax(0,1fr)}
+ .top-actions>*{min-width:0}
+ .project-name{min-width:0;max-width:100%;font-size:16px}
+ .logo{overflow-wrap:anywhere}
+ .seek,.field,.detail-body,.ctrl,.format-controls>label,.export-controls>label{min-width:0}
+ .preset-grid,.export-controls{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .preset,.btn,.tabs button,.mobile-nav button{min-width:0;overflow-wrap:anywhere}
+ .fname,.mini-tip,.hint-box,.export-note,.status-count,.shortcut{overflow-wrap:anywhere}
+ .ctrl label{min-width:0;flex:0 1 35%;overflow-wrap:anywhere}
+ .ctrl select{min-width:0;flex:0 1 60%;max-width:60%}
+ .ctrl input[type=range]{min-width:0;flex:1 1 0}
+ .ctrl .val{flex:0 0 34px}
+ .checkrow{overflow-wrap:anywhere}.checkrow input{flex-shrink:0}
+ .seek input,.field input,.field textarea,.format-controls select,.export-controls select{min-width:0;max-width:100%}
+ .lrow .pat{min-width:0;flex-basis:140px}
+ .timeline-shell,.timeline-scroll{min-width:0;width:100%;max-width:100%}
+ .timeline-scroll{overflow-x:auto;overscroll-behavior-x:contain}
+ .timeline-content{max-width:none}
+ .dock-buttons>*{min-width:0}.dock-meta{min-width:0}
+ .dock-meta span{flex:1 1 0}.dock-meta button{max-width:55%;white-space:normal}
+}
 </style>
 </head>
 <body>
@@ -941,7 +969,7 @@ try{const saved=localStorage.getItem('lyric-motion-desk-v2');if(saved){restoreSn
 if(!S.lyrics.length){$('exportStatus').textContent='素材 → 音楽を選ぶ → 歌詞を反映 → タイミング記録。素材タブでデモも試せます。';}
 
 // Mobile and desktop share the same project, renderer and controls.
-document.querySelector('.logo small').textContent='MOTION DESK · v2.4.0';
+document.querySelector('.logo small').textContent='MOTION DESK · v2.4.1';
 document.querySelector('.col.center').id='previewPanel';
 document.querySelector('.col.left').id='editPanel';
 document.querySelector('.col.right').id='stylePanel';
