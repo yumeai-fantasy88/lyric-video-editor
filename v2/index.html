@@ -218,16 +218,16 @@ html{scroll-padding-top:64px}body{background:var(--bg)}
     <h2 class="sec">素材</h2>
     <div class="field">
       <label class="lab">音楽ファイル (mp3 / wav / m4a)</label>
-      <button type="button" class="btn wide" id="chooseAudio">🎵 音楽を選ぶ</button>
+      <label role="button" tabindex="0" for="audioFile" class="btn wide" id="chooseAudio">🎵 音楽を選ぶ</label>
       <input type="file" id="audioFile" hidden accept=".mp3,.wav,.m4a,audio/*,audio/mpeg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a">
-      <button type="button" class="btn sm wide" id="chooseAudioAny" style="margin-top:8px;min-height:44px">選べないとき：すべてのファイルから選ぶ</button>
+      <label role="button" tabindex="0" for="audioFileAny" class="btn sm wide" id="chooseAudioAny" style="margin-top:8px;min-height:44px">選べないとき：すべてのファイルから選ぶ</label>
       <input type="file" id="audioFileAny" hidden aria-label="音楽をすべてのファイルから選ぶ">
       <div class="hint">MP3・WAV・M4A対応。選択できない場合は下のボタンで「ファイル」から選んでください。</div>
       <div class="fname" id="audioName"></div>
     </div>
     <div class="field">
       <label class="lab">背景 (動画 mp4 / 画像 / なし)</label>
-      <button type="button" class="btn wide" id="chooseBg">🎬 背景を選ぶ</button><input type="file" id="bgFile" hidden accept="video/*,image/*">
+      <label role="button" tabindex="0" for="bgFile" class="btn wide" id="chooseBg">🎬 背景を選ぶ</label><input type="file" id="bgFile" hidden accept="video/*,image/*">
       <div class="fname" id="bgName"></div>
       <button class="btn sm" id="clearBg" style="margin-top:6px">背景をクリア</button>
     </div>
@@ -414,10 +414,10 @@ function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>
 
 // ---------- files ----------
 // Keep native pickers separate; no invisible input can overlap another button.
-function chooseFile(id){const input=$(id);input.value='';input.click();}
-$('chooseAudio').onclick=()=>chooseFile('audioFile');
-$('chooseAudioAny').onclick=()=>chooseFile('audioFileAny');
-$('chooseBg').onclick=()=>chooseFile('bgFile');
+for(const [buttonId,inputId] of [['chooseAudio','audioFile'],['chooseAudioAny','audioFileAny'],['chooseBg','bgFile']]){
+  $(inputId).addEventListener('click',e=>{e.currentTarget.value='';});
+  $(buttonId).addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$(inputId).click();}});
+}
 function loadMusicFile(file){
   if(!file)return;
   if(!/^audio\//i.test(file.type)&&! /\.(mp3|wav|m4a|aac|aif|aiff|flac|ogg|oga|opus|weba|mp4)$/i.test(file.name)){
