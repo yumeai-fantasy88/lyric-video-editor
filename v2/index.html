@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Lyric Video Studio — v2.3.0</title>
+<title>Lyric Video Studio — v2.3.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -218,12 +218,16 @@ html{scroll-padding-top:64px}body{background:var(--bg)}
     <h2 class="sec">素材</h2>
     <div class="field">
       <label class="lab">音楽ファイル (mp3 / wav / m4a)</label>
-      <label class="btn wide filebtn">🎵 音楽を選ぶ<input type="file" id="audioFile"></label>
+      <button type="button" class="btn wide" id="chooseAudio">🎵 音楽を選ぶ</button>
+      <input type="file" id="audioFile" hidden accept=".mp3,.wav,.m4a,audio/*,audio/mpeg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a">
+      <button type="button" class="btn sm wide" id="chooseAudioAny" style="margin-top:8px;min-height:44px">選べないとき：すべてのファイルから選ぶ</button>
+      <input type="file" id="audioFileAny" hidden aria-label="音楽をすべてのファイルから選ぶ">
+      <div class="hint">MP3・WAV・M4A対応。選択できない場合は下のボタンで「ファイル」から選んでください。</div>
       <div class="fname" id="audioName"></div>
     </div>
     <div class="field">
       <label class="lab">背景 (動画 mp4 / 画像 / なし)</label>
-      <label class="btn wide filebtn">🎬 背景を選ぶ<input type="file" id="bgFile"></label>
+      <button type="button" class="btn wide" id="chooseBg">🎬 背景を選ぶ</button><input type="file" id="bgFile" hidden accept="video/*,image/*">
       <div class="fname" id="bgName"></div>
       <button class="btn sm" id="clearBg" style="margin-top:6px">背景をクリア</button>
     </div>
@@ -409,7 +413,23 @@ function fmt(s){if(!isFinite(s))return '0:00';const m=Math.floor(s/60),ss=Math.f
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 // ---------- files ----------
-$('audioFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;try{if(audio.src)URL.revokeObjectURL(audio.src);}catch(_){}audio.src=URL.createObjectURL(f);$('audioName').textContent=f.name;audio.load();});
+// Keep native pickers separate; no invisible input can overlap another button.
+function chooseFile(id){const input=$(id);input.value='';input.click();}
+$('chooseAudio').onclick=()=>chooseFile('audioFile');
+$('chooseAudioAny').onclick=()=>chooseFile('audioFileAny');
+$('chooseBg').onclick=()=>chooseFile('bgFile');
+function loadMusicFile(file){
+  if(!file)return;
+  if(!/^audio\//i.test(file.type)&&! /\.(mp3|wav|m4a|aac|aif|aiff|flac|ogg|oga|opus|weba|mp4)$/i.test(file.name)){
+    toast('音楽ファイル（MP3・WAV・M4Aなど）を選んでください');return;
+  }
+  audio.pause();
+  try{if(audio.src)URL.revokeObjectURL(audio.src);}catch(_){}
+  audio.src=URL.createObjectURL(file);
+  $('audioName').textContent=file.name;
+  audio.load();loadWave(file);
+}
+for(const id of ['audioFile','audioFileAny'])$(id).addEventListener('change',e=>loadMusicFile(e.target.files[0]));
 audio.addEventListener('canplay',()=>{if(audio.src)toast('音楽を読み込みました');});
 audio.addEventListener('error',()=>{if(audio.src)toast('この音声ファイルは再生できませんでした（別のmp3をお試しください）');});
 $('bgFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;if(bgVideo.src)URL.revokeObjectURL(bgVideo.src);if(bgImage.src)URL.revokeObjectURL(bgImage.src);bgVideo.pause();const url=URL.createObjectURL(f);const name=(f.name||'').toLowerCase();const isVideo=f.type.startsWith('video')||/\.(mp4|mov|webm|m4v|avi)$/.test(name);if(isVideo){bgVideo.src=url;bgVideo.load();if(!audio.paused)bgVideo.play().catch(()=>{});S.bgType='video';}else{bgImage.src=url;S.bgType='image';}$('bgName').textContent=f.name;toast('背景を読み込みました');});
@@ -755,7 +775,7 @@ leftChildren.slice(0,3).forEach(el=>mediaPanel.append(el));leftChildren.slice(3)
 left.innerHTML='<div class="tabs" role="tablist" aria-label="編集内容"><button role="tab" aria-selected="true" aria-controls="lyricPanel" id="lyricsTab">歌詞・同期</button><button role="tab" aria-selected="false" aria-controls="mediaPanel" id="mediaTab">素材</button></div>';left.append(lyricPanel,mediaPanel);
 for(const [id,show] of [['lyricsTab',true],['mediaTab',false]])$(id).onclick=()=>{lyricPanel.hidden=!show;mediaPanel.hidden=show;$('lyricsTab').setAttribute('aria-selected',show);$('mediaTab').setAttribute('aria-selected',!show);};
 mediaPanel.insertAdjacentHTML('beforeend','<div class="divider"></div><button id="demo" class="btn wide">12秒のデモを試す</button><p class="mini-tip" style="margin-top:10px">デモ歌詞とガイド音で動きを確認できます。素材は端末内で処理されます。</p><h2 class="sec">字幕ファイル</h2><label class="btn wide filebtn">LRC / SRT を読み込む<input type="file" id="subtitleFile" accept=".lrc,.srt,text/plain" aria-label="字幕ファイルを選ぶ"></label><button class="btn wide" id="saveSrt" style="margin-top:8px">SRTで保存</button>');
-$('audioFile').accept='audio/*';$('audioFile').setAttribute('aria-label','音楽ファイルを選ぶ');$('bgFile').accept='video/*,image/*';$('bgFile').setAttribute('aria-label','背景ファイルを選ぶ');
+$('audioFile').setAttribute('aria-label','音楽ファイルを選ぶ');$('bgFile').accept='video/*,image/*';$('bgFile').setAttribute('aria-label','背景ファイルを選ぶ');
 $('tapBtn').before(Object.assign(document.createElement('div'),{innerHTML:'<label class="mode-label"><input type="checkbox" id="timingMode">タップでタイミングを記録</label>'}));
 document.querySelector('.hint-box').innerHTML='記録モードで再生し、歌詞の開始に合わせて <span class="kbd">Space</span> またはマークを押します。通常は Space で再生・停止。';
 $('timingMode').onchange=()=>{timingMode=$('timingMode').checked;updateTapBtn();};
@@ -798,7 +818,7 @@ $('timelineZoom').onchange=()=>{zoom=+$('timelineZoom').value;renderTimeline();}
 audio.addEventListener('timeupdate',updatePlayhead);audio.addEventListener('loadedmetadata',renderTimeline);window.addEventListener('resize',()=>requestAnimationFrame(drawWave));
 let waveformGeneration=0;
 async function loadWave(file){const generation=++waveformGeneration;wavePeaks=[];drawWave();let ac;try{ac=new (window.AudioContext||window.webkitAudioContext)();const b=await ac.decodeAudioData(await file.arrayBuffer());if(generation!==waveformGeneration)return;const samples=b.getChannelData(0),count=3000;wavePeaks=Array.from({length:count},(_,i)=>{const start=Math.floor(i*samples.length/count),end=Math.floor((i+1)*samples.length/count);let max=0;for(let j=start;j<end;j++)max=Math.max(max,Math.abs(samples[j]));return max;});drawWave();}catch(_){toast('波形を解析できませんでした。再生可能なら編集を続けられます');}finally{if(ac)await ac.close();}}
-$('audioFile').addEventListener('change',e=>{if(e.target.files[0])loadWave(e.target.files[0]);});
+
 
 function drawSpatialFX(info){const strength=(S.style.spatial??35)/100;if(strength<=0||['fade','type','rise'].includes(info.pattern))return;const energy=Math.max(1-clamp01(info.appear/.7),1-clamp01(info.remain/.35));if(energy<=0)return;ctx.save();ctx.globalAlpha=energy*strength*.5;ctx.strokeStyle=S.style.chroma?'#ffffff':S.style.textColor;ctx.lineWidth=2*SC;for(let k=0;k<14;k++){const angle=rnd(info.idx*17+k)*Math.PI*2,dist=(.22+(1-energy)*.48)*W;const cx=W/2+Math.cos(angle)*dist,cy=H/2+Math.sin(angle)*dist*.65;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*(40+energy*160),cy+Math.sin(angle)*(40+energy*160));ctx.stroke();}ctx.restore();}
 
@@ -894,7 +914,7 @@ try{const saved=localStorage.getItem('lyric-motion-desk-v2');if(saved){restoreSn
 if(!S.lyrics.length){$('exportStatus').textContent='素材 → 音楽を選ぶ → 歌詞を反映 → タイミング記録。素材タブでデモも試せます。';}
 
 // Mobile and desktop share the same project, renderer and controls.
-document.querySelector('.logo small').textContent='MOTION DESK · v2.3.0';
+document.querySelector('.logo small').textContent='MOTION DESK · v2.3.1';
 document.querySelector('.col.center').id='previewPanel';
 document.querySelector('.col.left').id='editPanel';
 document.querySelector('.col.right').id='stylePanel';
@@ -954,3 +974,4 @@ applyStudioAspect();
 </script>
 </body>
 </html>
+
