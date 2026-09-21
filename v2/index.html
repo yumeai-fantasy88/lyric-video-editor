@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Lyric Video Studio — v2.4.2</title>
+<title>Lyric Video Studio — v2.5.0</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dela+Gothic+One&family=M+PLUS+1p:wght@400;700;800&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Shippori+Mincho:wght@600;800&family=Orbitron:wght@600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -988,7 +988,7 @@ try{const saved=localStorage.getItem('lyric-motion-desk-v2');if(saved){restoreSn
 if(!S.lyrics.length){$('exportStatus').textContent='素材 → 音楽を選ぶ → 歌詞を反映 → タイミング記録。素材タブでデモも試せます。';}
 
 // Mobile and desktop share the same project, renderer and controls.
-document.querySelector('.logo small').textContent='MOTION DESK · v2.4.2';
+document.querySelector('.logo small').textContent='MOTION DESK · v2.5.0';
 document.querySelector('.col.center').id='previewPanel';
 document.querySelector('.col.left').id='editPanel';
 document.querySelector('.col.right').id='stylePanel';
@@ -1048,6 +1048,181 @@ $('aspectRatio').onchange=()=>{if(isRecording())return;checkpoint();S.style.aspe
 $('backgroundFit').onchange=()=>{if(isRecording())return;checkpoint();S.style.bgFit=$('backgroundFit').value;renderOnce();scheduleSave();};
 applyStudioAspect();
 
+// Multi-background sequence and non-destructive audio source ranges.
+let clipBusy=false, clipState={backgrounds:[],music:null}, musicBlob=null, musicBuffer=null, musicKey=null;
+const backgroundAssets=new Map();
+const clipCSS=document.createElement('style');
+clipCSS.textContent='.clip-list{display:grid;gap:10px;margin:12px 0}.clip-item{min-width:0;border:1px solid var(--border,#363a3c);border-radius:10px;padding:12px;display:grid;gap:8px}.clip-item strong{overflow-wrap:anywhere}.clip-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.clip-actions input{width:100px;min-width:0;font-size:16px}.clip-actions button{min-height:44px}.clip-note{font-size:13px;line-height:1.7;opacity:.8}.clip-working{position:fixed;inset:0;z-index:99999;background:#101214ed;display:grid;place-items:center;color:#eee;padding:24px}.clip-working[hidden]{display:none}';
+document.head.append(clipCSS);
+const clipWorking=document.createElement('div');clipWorking.className='clip-working';clipWorking.hidden=true;clipWorking.setAttribute('role','status');clipWorking.textContent='音声を編集しています…';document.body.append(clipWorking);
+for(const event of ['click','keydown','input','change'])document.addEventListener(event,e=>{if(clipBusy){e.preventDefault();e.stopImmediatePropagation();}},true);
+$('audioName').insertAdjacentHTML('afterend','<section aria-label="曲の分割"><p class="clip-note">再生位置で分割し、不要な区間を削除できます。削除後は歌詞と背景も前に詰まります。</p><div class="clip-actions"><button class="btn" id="splitMusic">現在位置で曲を分割</button><label>分割位置（秒）<input id="splitSecond" type="text" inputmode="decimal" placeholder="12.50"></label><button class="btn" id="splitAtSecond">指定秒で分割</button></div><div id="musicClips" class="clip-list"></div></section>');
+$('bgName').insertAdjacentHTML('afterend','<div id="backgroundClips" class="clip-list"></div><p class="clip-note">背景は追加順に切り替わります。表示秒数と順番を変更できます。最後の素材の後は背景色を表示します。保存した編集を開いたら、同じ素材を選び直してください。</p>');
+$('bgFile').multiple=true;$('chooseBg').textContent='背景を追加（画像・動画）';
+const fileKey=f=>[f.name,f.size,f.lastModified].join(':');
+const cloneClips=v=>JSON.parse(JSON.stringify(v));
+function clipButton(text,action){const b=document.createElement('button');b.className='btn sm';b.type='button';b.textContent=text;b.onclick=()=>{if(!isRecording()&&!clipBusy)action();};return b;}
+function clipChanged(){renderClipEditor();renderOnce();renderTimeline();scheduleSave();}
+function renderClipEditor(){
+ const list=$('backgroundClips');list.replaceChildren();let time=0;
+ for(const [i,c] of clipState.backgrounds.entries()){
+  const row=document.createElement('div');row.className='clip-item';
+  const title=document.createElement('strong');title.textContent=(i+1)+'. '+c.name+(backgroundAssets.has(c.key)?'':'（素材を再選択）');
+  const info=document.createElement('span');info.className='clip-note';info.textContent=time.toFixed(2)+' → '+(time+c.length).toFixed(2)+' 秒';time+=c.length;
+  const actions=document.createElement('div');actions.className='clip-actions';
+  const label=document.createElement('label');label.textContent='表示秒数 ';const input=document.createElement('input');input.type='text';input.inputMode='decimal';input.value=c.length.toFixed(2);input.setAttribute('aria-label',c.name+'の表示秒数');
+  const commit=()=>{const n=parseTimingSeconds(input.value);if(!Number.isFinite(n)||n<.1||n>86400){input.value=c.length.toFixed(2);toast('0.1秒以上の秒数を入力してください');return;}if(n!==c.length){checkpoint();c.length=n;clipChanged();}};
+  input.onchange=commit;input.onblur=commit;label.append(input);actions.append(label);
+  for(const [name,delta] of [['↑',-1],['↓',1]]){const b=clipButton(name,()=>{checkpoint();const a=clipState.backgrounds;[a[i],a[i+delta]]=[a[i+delta],a[i]];clipChanged();});b.disabled=i+delta<0||i+delta>=clipState.backgrounds.length;b.setAttribute('aria-label',c.name+(delta<0?'を前へ':'を後へ'));actions.append(b);}
+  actions.append(clipButton('削除',()=>{checkpoint();clipState.backgrounds.splice(i,1);clipChanged();}));
+  row.append(title,info,actions);list.append(row);
+ }
+ $('bgName').textContent=clipState.backgrounds.length?clipState.backgrounds.length+'素材 / '+time.toFixed(2)+'秒':'';
+ const music=$('musicClips');music.replaceChildren();time=0;
+ for(const [i,r] of (clipState.music?.ranges||[]).entries()){
+  const start=time;time+=r[1]-r[0];const row=document.createElement('div');row.className='clip-item';
+  const title=document.createElement('strong');title.textContent='区間 '+(i+1)+' · '+start.toFixed(2)+' → '+time.toFixed(2)+' 秒';
+  const info=document.createElement('span');info.className='clip-note';info.textContent='元の曲 '+r[0].toFixed(2)+' → '+r[1].toFixed(2)+' 秒';
+  const actions=document.createElement('div');actions.className='clip-actions';
+  actions.append(clipButton('ここから再生',()=>{if(!musicBlob){toast('元の音楽を選び直してください');return;}audio.currentTime=start;syncBgVideo();if(audio.paused)togglePlay();}));
+  const del=clipButton('この区間を削除',()=>removeMusicClip(i));del.disabled=clipState.music.ranges.length<=1;actions.append(del);row.append(title,info,actions);music.append(row);
+ }
+}
+async function addBackgrounds(files){
+ if(isRecording()||clipBusy)return;checkpoint();
+ for(const f of files){
+  const video=f.type.startsWith('video/')||/\.(mp4|mov|webm|m4v)$/i.test(f.name);
+  if(!video&&!f.type.startsWith('image/')&&!/\.(png|jpe?g|webp|gif|avif|heic)$/i.test(f.name)){toast(f.name+' は画像・動画ではありません');continue;}
+  const key=fileKey(f);let asset=backgroundAssets.get(key);
+  if(!asset){
+   const media=document.createElement(video?'video':'img'),url=URL.createObjectURL(f);
+   if(video){media.muted=true;media.loop=true;media.playsInline=true;media.preload='auto';}
+   media.src=url;asset={media,video,url};backgroundAssets.set(key,asset);
+   media.addEventListener('error',()=>toast(f.name+' を表示できません。別形式でお試しください'));
+   if(video)media.load();
+  }
+  if(clipState.backgrounds.some(c=>c.key===key))continue;
+  const c={key,name:f.name,length:5,offset:0};clipState.backgrounds.push(c);
+  if(asset.video){const update=()=>{if(Number.isFinite(asset.media.duration)&&asset.media.duration>0&&c.length===5){c.length=Math.round(asset.media.duration*100)/100;clipChanged();}};asset.media.addEventListener('loadedmetadata',update,{once:true});update();}
+ }
+ S.bgType='none';bgVideo.pause();clipChanged();toast('背景素材を追加しました');
+}
+$('bgFile').addEventListener('change',e=>{e.stopImmediatePropagation();addBackgrounds([...e.target.files]);},true);
+$('clearBg').addEventListener('click',e=>{e.stopImmediatePropagation();if(isRecording())return;checkpoint();clipState.backgrounds=[];S.bgType='none';for(const a of backgroundAssets.values())if(a.video)a.media.pause();clipChanged();},true);
+function currentBackground(){
+ let start=0;for(const c of clipState.backgrounds){if(audio.currentTime>=start&&audio.currentTime<start+c.length)return {c,local:audio.currentTime-start+(c.offset||0),asset:backgroundAssets.get(c.key)};start+=c.length;}return null;
+}
+function syncSequence(force=false){
+ const active=currentBackground();
+ for(const a of backgroundAssets.values())if(a.video){
+  const m=a.media;if(active?.asset!==a){if(!m.paused)m.pause();continue;}
+  if(Number.isFinite(m.duration)&&m.duration>0){const target=active.local%m.duration;if(!m.seeking&&(force||Math.abs(m.currentTime-target)>.25))m.currentTime=target;}
+  if(audio.paused){if(!m.paused)m.pause();}else if(m.paused)m.play().catch(()=>{});
+ }return active;
+}
+syncBgVideo=()=>syncSequence(true);
+for(const ev of ['pause','play','seeked','ended'])audio.addEventListener(ev,()=>syncSequence(true));
+const oldDrawBackground=drawBackground;
+drawBackground=function(){const active=syncSequence();if(!S.style.chroma&&active?.asset){const {media,video}=active.asset;if(video?media.readyState>=2:media.complete&&media.naturalWidth){ctx.fillStyle=S.style.bgColor;ctx.fillRect(0,0,W,H);drawCover(media);if(S.style.dim){ctx.fillStyle='rgba(0,0,0,'+S.style.dim/100+')';ctx.fillRect(0,0,W,H);}return;}}oldDrawBackground();};
+const originalMusicLoader=loadMusicFile;
+loadMusicFile=function(file){
+ if(!file||isRecording()||clipBusy)return;
+ if(!/^audio\//i.test(file.type)&&!/\.(mp3|wav|m4a|aac|aif|aiff|flac|ogg|oga|opus|weba|mp4)$/i.test(file.name)){originalMusicLoader(file);return;}
+ const key=fileKey(file),restore=clipState.music?.key===key;
+ musicBlob=file;musicBuffer=null;musicKey=key;
+ if(!restore)clipState.music={key,name:file.name,ranges:[]};
+ originalMusicLoader(file);
+ if(restore&&clipState.music.ranges.length)rebuildMusic().catch(e=>toast(e.message));
+ renderClipEditor();
+};
+audio.addEventListener('loadedmetadata',()=>{if(musicBlob&&clipState.music?.key===musicKey&&!clipState.music.ranges.length&&Number.isFinite(audio.duration)){clipState.music.ranges=[[0,audio.duration]];renderClipEditor();scheduleSave();}});
+async function decodedMusic(){
+ if(musicBuffer)return musicBuffer;if(!musicBlob)throw Error('元の音楽ファイルを選び直してください');
+ const ac=new(window.AudioContext||window.webkitAudioContext)();
+ try{musicBuffer=await ac.decodeAudioData(await musicBlob.arrayBuffer());return musicBuffer;}finally{await ac.close();}
+}
+function encodeRanges(buffer,ranges){
+ const rate=buffer.sampleRate,channels=buffer.numberOfChannels;
+ const spans=ranges.map(([a,b])=>[Math.round(a*rate),Math.min(buffer.length,Math.round(b*rate))]);
+ const count=spans.reduce((n,[a,b])=>n+b-a,0);if(count<=0||count*channels*2>500000000)throw Error('音声が長すぎるか、区間が無効です');
+ const data=new ArrayBuffer(44+count*channels*2),v=new DataView(data);
+ const str=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+ str(0,'RIFF');v.setUint32(4,data.byteLength-8,true);str(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,channels,true);v.setUint32(24,rate,true);v.setUint32(28,rate*channels*2,true);v.setUint16(32,channels*2,true);v.setUint16(34,16,true);str(36,'data');v.setUint32(40,data.byteLength-44,true);
+ const planes=Array.from({length:channels},(_,c)=>buffer.getChannelData(c));let pos=44;
+ for(const [a,b] of spans)for(let i=a;i<b;i++)for(let c=0;c<channels;c++){const sample=Math.max(-1,Math.min(1,planes[c][i]));v.setInt16(pos,sample<0?sample*32768:sample*32767,true);pos+=2;}
+ return new Blob([data],{type:'audio/wav'});
+}
+async function rebuildMusic(){
+ clipBusy=true;clipWorking.hidden=false;audio.pause();
+ try{
+  const buffer=await decodedMusic(),ranges=clipState.music.ranges;
+  if(ranges.some(([a,b])=>a<0||b<=a||b>buffer.duration+.1))throw Error('元の音楽と区間が一致しません');
+  const blob=encodeRanges(buffer,ranges);if(audio.src)URL.revokeObjectURL(audio.src);audio.src=URL.createObjectURL(blob);audio.load();loadWave(blob);
+ }finally{clipBusy=false;clipWorking.hidden=true;renderClipEditor();}
+}
+function splitMusicAt(t){
+ if(isRecording()||clipBusy)return;if(!musicBlob||!clipState.music?.ranges.length){toast('音楽を読み込んでから分割してください');return;}
+ let start=0;const ranges=clipState.music.ranges;
+ for(let i=0;i<ranges.length;i++){const [a,b]=ranges[i],end=start+b-a;if(Number.isFinite(t)&&t>start+.05&&t<end-.05){checkpoint();const cut=a+t-start;ranges.splice(i,1,[a,cut],[cut,b]);clipChanged();toast(t.toFixed(2)+'秒で分割しました');return;}start=end;}
+ toast('区間の端から0.05秒以上離れた位置を指定してください');
+}
+$('splitMusic').onclick=()=>splitMusicAt(audio.currentTime);
+$('splitAtSecond').onclick=()=>splitMusicAt(parseTimingSeconds($('splitSecond').value));
+function removeTimeSpan(start,end){
+ const gap=end-start;
+ // Remove lyrics starting inside the cut; undo retains the original project.
+ S.lyrics=S.lyrics.filter(l=>l.time==null||l.time<start||l.time>=end);
+ for(const l of S.lyrics){
+  if(l.time==null)continue;
+  if(l.time>=start&&l.time<end){l.time=null;delete l.end;continue;}
+  if(l.time>=end)l.time-=gap;
+  if(l.end!=null){l.end=l.end>=end?l.end-gap:Math.min(l.end,start);if(l.end<=l.time)delete l.end;}
+ }
+ S.tapIndex=S.lyrics.findIndex(l=>l.time==null);if(S.tapIndex<0)S.tapIndex=S.lyrics.length;
+ let cursor=0;const next=[];
+ for(const c of clipState.backgrounds){const a=cursor,b=a+c.length;cursor=b;
+  const left=Math.max(0,Math.min(b,start)-a),right=Math.max(0,b-Math.max(a,end));
+  if(left>0)next.push({...c,length:left});
+  if(right>0)next.push({...c,length:right,offset:(c.offset||0)+Math.max(0,end-a)});
+ }clipState.backgrounds=next;
+}
+async function removeMusicClip(i){
+ if(!musicBlob){toast('元の音楽ファイルを選び直してください');return;}
+ const ranges=clipState.music.ranges;if(ranges.length<=1)return;
+ const before=cloneClips(clipState),start=ranges.slice(0,i).reduce((n,r)=>n+r[1]-r[0],0),end=start+ranges[i][1]-ranges[i][0];
+ checkpoint();ranges.splice(i,1);
+ try{await rebuildMusic();removeTimeSpan(start,end);$('lyricInput').value=S.lyrics.map(l=>l.text).join('\n');renderLyricList();clipChanged();toast('曲・歌詞・背景の区間を削除しました。「戻す」で復元できます');}
+ catch(e){clipState=before;renderClipEditor();toast(e.message||'音声を編集できませんでした');}
+}
+const clipSnapshot=snapshot;snapshot=function(){return JSON.stringify({...JSON.parse(clipSnapshot()),clips:clipState});};
+function checkedClips(c){
+ if(!c||!Array.isArray(c.backgrounds)||c.backgrounds.length>1000)throw Error('背景区間');
+ for(const b of c.backgrounds)if(typeof b.key!=='string'||typeof b.name!=='string'||!Number.isFinite(b.length)||b.length<.01||b.length>86400||!Number.isFinite(b.offset??0)||(b.offset??0)<0)throw Error('背景区間');
+ if(c.music){if(typeof c.music.key!=='string'||!Array.isArray(c.music.ranges)||c.music.ranges.length>10000)throw Error('音声区間');let last=0;for(const r of c.music.ranges){if(!Array.isArray(r)||r.length!==2||!r.every(Number.isFinite)||r[0]<last||r[1]<=r[0])throw Error('音声区間');last=r[1];}}
+ return cloneClips(c);
+}
+const clipValidProject=validProject;validProject=function(p){if(p.clips)checkedClips(p.clips);return clipValidProject(p);};
+const clipRestore=restoreSnapshot;restoreSnapshot=function(v){
+ if(clipBusy)return;const p=JSON.parse(v),previous=JSON.stringify(clipState.music);
+ if(p.clips){clipState=checkedClips(p.clips);S.bgType='none';}
+ clipRestore(v);renderClipEditor();
+ if(previous!==JSON.stringify(clipState.music)){
+  if(clipState.music?.key===musicKey&&musicBlob)rebuildMusic().catch(e=>toast(e.message));
+  else{audio.pause();audio.removeAttribute('src');audio.load();musicBlob=null;musicBuffer=null;musicKey=null;$('audioName').textContent=clipState.music?clipState.music.name+'（元の音楽を再選択）':'';}
+ }
+};
+const clipExport=exportVideo;exportVideo=async function(){
+ if(clipBusy)return;
+ if(clipState.backgrounds.some(c=>!backgroundAssets.has(c.key))){toast('未読込の背景素材を再選択するか、一覧から削除してください');return;}
+ for(const c of clipState.backgrounds){const a=backgroundAssets.get(c.key);if(a.video?a.media.readyState<2:!a.media.complete||!a.media.naturalWidth){toast('背景素材を読み込み中、または読み込めません。素材を確認してください');return;}}
+ if(audio.src&&Number.isFinite(audio.duration)){audio.pause();try{await seekMedia(audio,0);const first=currentBackground();if(first?.asset?.video)await seekMedia(first.asset.media,first.local%first.asset.media.duration);}catch(e){toast(e.message);return;}}
+ await clipExport();
+};
+// Export button held the old function reference.
+$('recordBtn').addEventListener('click',e=>{e.stopImmediatePropagation();exportVideo();},true);
+const clipDemo=$('demo').onclick;$('demo').onclick=()=>{const before=audio.src;clipDemo();if(audio.src!==before){musicBlob=null;musicBuffer=null;musicKey=null;clipState.music=null;renderClipEditor();scheduleSave();}};
+try{const saved=JSON.parse(localStorage.getItem('lyric-motion-desk-v2')||'null');if(saved?.clips){clipState=checkedClips(saved.clips);renderClipEditor();if(clipState.music)$('audioName').textContent=clipState.music.name+'（元の音楽を再選択）';}}catch(_){}
+renderClipEditor();
 </script>
 </body>
 </html>
